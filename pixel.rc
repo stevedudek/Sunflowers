@@ -1,0 +1,28 @@
+# Configuration file for PixelPusher with two inch pixels
+
+# You can change this if you have longer or shorter strings.
+pixels=144
+swap=123456
+
+# This sets how many strings are attached.
+stripsattached=6
+
+artnet_universe=1
+artnet_channel=1
+
+strip1=ws2801
+order1=grb
+strip2=ws2801
+order2=grb
+strip3=ws2801
+order3=grb
+strip4=ws2801
+order4=grb
+strip5=ws2801
+order5=grb
+strip6=ws2801
+order6=grb
+
+ether=10.1.0.20
+netmask=255.255.255.0
+gateway=10.1.0.1
