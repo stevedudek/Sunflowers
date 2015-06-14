@@ -6,7 +6,7 @@ class Pulse(object):
 	def __init__(self, rosemodel):
 		self.name = "Pulse"        
 		self.rose = rosemodel
-		self.speed = 0.3
+		self.speed = 0.05
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_speed = randint(1,4)

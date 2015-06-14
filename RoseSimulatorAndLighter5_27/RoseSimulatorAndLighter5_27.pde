@@ -129,7 +129,7 @@ void setup() {
 void draw() {
   pollServer();        // Get messages from python show runner
   sendDataToLights();  // Dump data into lights
-  drawRoses();
+  //drawRoses();
   pushColorBuffer();   // Push the frame buffers
 }
 
