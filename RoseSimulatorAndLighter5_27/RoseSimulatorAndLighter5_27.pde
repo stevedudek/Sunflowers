@@ -69,7 +69,7 @@ boolean TILING = true;
 
 // number of roses and number of lights per rose
 int numBigRose = 1;
-int NUM_PIXELS = 144;
+char NUM_PIXELS = 144;
 
 int BRIGHTNESS = 100;  // A percentage
 
@@ -82,19 +82,23 @@ int[][][] curr_buffer = new int[numBigRose][NUM_PIXELS][3];
 int[][][] next_buffer = new int[numBigRose][NUM_PIXELS][3];
 
 // Calculated pixel constants for simulator display
-int SCREEN_SIZE = 400;  // square screen
-float BORDER = 0.05; // How much edge between rose and screen
+boolean UPDATE_VISUALIZER = true;  // turn false for LED-only updates
+int SCREEN_SIZE = 300;  // square screen
+float BORDER = 0.05; // How much fractional edge between rose and screen
+int BORDER_PIX = int(SCREEN_SIZE * BORDER); // Edge in pixels
+int ROSE_DIAM = int(SCREEN_SIZE * (1.0 - (2 * BORDER)));  // Rose size
 float DENSITY = 0.0005; // 'Dottiness' of rose lines. approaching 0 = full line.
 int CORNER_X = 10; // bottom left corner position on the screen
 int CORNER_Y = SCREEN_SIZE - 10; // bottom left corner position on the screen
 
 // Lookup table to hasten the fill algorithm. Written once, read many times.
-int[][] screen_map = new int[SCREEN_SIZE][SCREEN_SIZE];
+char[][] screen_map = new char[ROSE_DIAM][ROSE_DIAM];
 
 // Grid model(s) of Big Roses
 RoseForm[] roseGrid = new RoseForm[numBigRose];
 
 void setup() {
+  
   size(SCREEN_SIZE, SCREEN_SIZE + 50); // 50 for controls
   stroke(0);
   fill(255,255,0);
@@ -102,7 +106,7 @@ void setup() {
   frameRate(10); // default 60 seems excessive
   
   // Set up the Big Roses and stuff in the little Roses
-  for (int i = 0; i < numBigRose; i++) {
+  for (byte i = 0; i < numBigRose; i++) {
     roseGrid[i] = makeRoseGrid(0,0,i);
   }
   
@@ -129,7 +133,7 @@ void setup() {
 void draw() {
   pollServer();        // Get messages from python show runner
   sendDataToLights();  // Dump data into lights
-  //drawRoses();
+  if (UPDATE_VISUALIZER) drawRoses();
   pushColorBuffer();   // Push the frame buffers
 }
 
@@ -277,25 +281,38 @@ void floodFill(Coord coord, byte p, byte d, color newC, boolean mapping)
 {
     int x = coord.x;
     int y = coord.y;
-    floodFillUtil(x, y, p, d, get(x,y), newC, mapping);
+    floodFillUtil(x, y, p, d, getColor(x,y), newC, mapping);
+}
+
+// Return the color of the x,y pixel
+// Adjust for the border
+color getColor(int x, int y) {
+  return get(x+BORDER_PIX, y+BORDER_PIX);
+}
+
+// Adds a point of color at x,y
+// Adjust for the border
+void putColor(int x, int y, color c) {
+  stroke(c);
+  point(x+BORDER_PIX, y+BORDER_PIX);
 }
 
 // A recursive function to replace previous color 'prevC' at  '(x, y)' 
 // and all surrounding pixels of (x, y) with new color 'newC' and
 void floodFillUtil(int x, int y, byte p, byte d, color prevC, color newC, boolean mapping)
 {
-    int leaf = GetLightFromCoord(p,d,0);  //getLeafNum(p,d);
+    byte big_grid = 0;
+    char leaf = GetLightFromCoord(p,d,big_grid);
     
     // Base case
-    if (x < 0 || x > SCREEN_SIZE || y < 0 || y > SCREEN_SIZE) return;
-    if (get(x,y) != prevC) return;
+    if (x < 0 || x >= ROSE_DIAM || y < 0 || y >= ROSE_DIAM) return;
+    if (getColor(x,y) != prevC) return;
  
     // Replace the color at (x,y)
     if (mapping) {
       screen_map[x][y] = leaf;      
     }
-    stroke(newC);
-    point(x,y);
+    putColor(x,y,newC);
  
     // Recur for north, east, south and west
     floodFillUtil(x+1, y, p, d, prevC, newC, mapping);
@@ -324,10 +341,10 @@ void drawLeaf(byte p, byte d, color c) {
   int leaf = getLeafNum(p,d);
   stroke(c);
   
-  for (int x=0; x<SCREEN_SIZE; x++) {
-    for (int y=0; y<SCREEN_SIZE; y++) {
+  for (int x=0; x<ROSE_DIAM; x++) {
+    for (int y=0; y<ROSE_DIAM; y++) {
       if (screen_map[x][y] == leaf) {
-        point(x,y);
+        putColor(x,y,c);
       }
     }
   }
@@ -344,6 +361,7 @@ int getLeafNum(byte p, byte d) {
 // Get Rose Offset
 //
 // Returns the x,y coordinate of an offset point
+// Need to add the screen border for actual offset
 // Petal is 0-23 number
 // distance is 0-11 along the petal with 6 as the outside leaf
 //
@@ -351,10 +369,9 @@ Coord GetRoseOffset(int petal, int distance) {
   petal = (((petal % 5) * 5) + (petal / 5)) % 24; // correct petals to line them up concurrently
   
   float t = PI * 7/12.0 * (petal + ((distance*7)+7)/100.0);
-  float r = ((1-BORDER)*SCREEN_SIZE/2.0) * sin(12/7.0 * t);  // k/d = 12/7 = 1.7143
-  float x = r * cos(t) + SCREEN_SIZE/2;
-  float y = r * sin(t) + SCREEN_SIZE/2;
-  //println(petal + " " + distance + " " + x + " " + y);
+  float r = (ROSE_DIAM/2.0) * sin(12/7.0 * t);  // k/d = 12/7 = 1.7143
+  float x = r * cos(t) + ROSE_DIAM/2;
+  float y = r * sin(t) + ROSE_DIAM/2;
   // Polar to Cartesian conversion
   return (new Coord(int(x),int(y)));
 }
@@ -384,9 +401,9 @@ void getScreenMap() {
 //
 // populate table with value
 //
-void fillScreen(int value) {
-  for (int x=0; x<SCREEN_SIZE; x++) {
-    for (int y=0; y<SCREEN_SIZE; y++) {
+void fillScreen(char value) {
+  for (int x=0; x<ROSE_DIAM; x++) {
+    for (int y=0; y<ROSE_DIAM; y++) {
       screen_map[x][y] = value;
     }
   }
@@ -394,7 +411,7 @@ void fillScreen(int value) {
 
 // makeRoseGrid
 //
-RoseForm makeRoseGrid(int big_x, int big_y, int big_num) {
+RoseForm makeRoseGrid(int big_x, int big_y, byte big_num) {
   
   RoseForm form = new RoseForm();
   
@@ -436,14 +453,13 @@ class RoseForm {
   
   // Raster over the screen_map. Fill each pixel with the appropriate leaf color
   void bulk_draw() {
-    int x,y,pixel;
-
-    for (x = 0; x < SCREEN_SIZE; x++) {
-      for (y = 0; y < SCREEN_SIZE; y++) {
+    int x,y;
+    char pixel;
+    for (x = 0; x < ROSE_DIAM; x++) {
+      for (y = 0; y < ROSE_DIAM; y++) {
         pixel = screen_map[x][y];
         if (pixel < NUM_PIXELS) {    // a leaf spot
-          stroke(pix_color[pixel]);  // Look up the color for that leaf
-          point(x,y);
+          putColor(x,y,pix_color[pixel]);
         }
       }
     }
@@ -451,15 +467,15 @@ class RoseForm {
   
   // Drawing the rose grid
   void draw_grid() {
-    stroke(0);  // Black
+    color black = color(0,0,0);
     for(float t = 0; t <= 24*PI; t += DENSITY) {
-      float r = ((1-BORDER)*SCREEN_SIZE/2.0) * cos(12/7.0 * t);  // k/d = 12/7
+      float r = (ROSE_DIAM/2.0) * cos(12/7.0 * t);  // k/d = 12/7
  
       // Polar to Cartesian conversion
-      float x = r * cos(t) + SCREEN_SIZE/2;
-      float y = r * sin(t) + SCREEN_SIZE/2;
+      int x = int(r * cos(t) + ROSE_DIAM/2);
+      int y = int(r * sin(t) + ROSE_DIAM/2);
       
-      point(x,y);
+      putColor(x,y,black);
       //rect(x, y, 2, 2);  // Chunky to prevent fill break-out
     }
   }
@@ -486,11 +502,11 @@ class Rose {
   String id = null; // "xcoord, ycoord"
   byte xcoord;  // x in the roseangle array (petal)
   byte ycoord;  // y in the roseangle array (distance)
-  int big_num; // strip number
-  int LED;     // LED number on the strand
+  byte big_num; // strip number
+  char LED;     // LED number on the strand
   color c;
   
-  Rose(byte xcoord, byte ycoord, int big_num) {
+  Rose(byte xcoord, byte ycoord, byte big_num) {
     this.xcoord = xcoord;
     this.ycoord = ycoord;
     this.big_num = big_num;
@@ -547,8 +563,8 @@ class Rose {
 // Get Light From Coord
 //
 // Algorithm to convert (petal,distance) coordinate into an LED number
-int GetLightFromCoord(int p, int d, int grid) {
-  p = (((p % 5) * 5) + (p / 5)) % 24; // correct petals to line them up concurrently
+char GetLightFromCoord(byte p, byte d, byte grid) {
+  p = byte((((p % 5) * 5) + (p / 5)) % 24); // correct petals to line them up concurrently
   
   int LED = (((5-d)/2)*48) + (p*2) + ((d+1)%2);
   
@@ -561,7 +577,7 @@ int GetLightFromCoord(int p, int d, int grid) {
     LED = LED+4;  // Shift the ring due to wiring
     if (LED >= 144) LED -= 48;
   }
-  return LED;
+  return char(LED);
 }
 
 //

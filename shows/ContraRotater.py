@@ -29,6 +29,7 @@ class ContraRotater(object):
 		self.speed = 0.5
 		self.color = randColor()
 		self.trail = 0.2
+		self.symm = 1
 		self.clock = 0
 		          
 	def next_frame(self):
@@ -40,26 +41,30 @@ class ContraRotater(object):
 			
 			# Create new faders
 
-			for d in range(maxDistance):
-				p = self.clock % maxPetal
-				if d % 2:
-					p = maxPetal - p  # The contra rotation
-
-				new_fader = Fader(self.rose, self.color, (p,d), self.trail)
-				self.faders.append(new_fader)
+			for p in range(maxPetal):
+				for d in range(maxDistance):
+					if p % (maxPetal / self.symm) == self.clock % (maxPetal / self.symm):
+						if d % 2 == 0:
+							new_p = maxPetal - p
+						else:
+							new_p = p
+						new_fader = Fader(self.rose, self.color, (new_p,d), self.trail)
+						self.faders.append(new_fader)
 			
 			# Draw the Faders
 				
 			for f in self.faders:
 				f.draw()
-				if f.fade() == False:
+				if not f.fade():
 					self.faders.remove(f)
 			
-			# Change the colors
+			# Change the colors and symmetry
 			
-			if oneIn(100):
-				self.color = randColorRange(self.color, 30)
+			self.color = randColorRange(self.color, 5)
 			
+			if oneIn(50):
+				self.symm = (self.symm % 8) + 1
+
 			self.clock += 1
 
 			yield self.speed  	# random time set in init function
