@@ -15,19 +15,20 @@ class CenterSpot(object):
 		self.bright = randint(0,2)
 	
 	def draw_ring(self):
-		for y in range(5,self.color_speed,-1):
-			for x in range(maxPetal):
-				color = changeColor(self.color, (x % self.color_grade) * self.color_inc)
-				intense = 1.0 - (0.1 * ((maxDistance-y-1) + ((self.clock+x) % self.color_speed)))
-				self.rose.set_cell((x,y), gradient_wheel(color, intense))
+		for r in range(maxRose):
+			for y in range(5,self.color_speed,-1):
+				for x in range(maxPetal):
+					color = changeColor(self.color, ((x+r) % self.color_grade) * self.color_inc)
+					intense = 1.0 - (0.1 * ((maxDistance-y-1) + ((self.clock+x+r) % self.color_speed)))
+					self.rose.set_cell((x,y), gradient_wheel(color, intense), r)
 
 	def draw_sun(self):
-		for y in range(self.color_speed):
-			for x in range(maxPetal):
-				color = changeColor(self.color, (x % self.color_grade) * self.color_inc)
-				intense = 1.0 - (0.2 * (y + ((self.clock+x) % self.color_speed)))
-				self.rose.set_cell((x,y), gradient_wheel(color, intense))
-
+		for r in range(maxRose):
+			for y in range(self.color_speed):
+				for x in range(maxPetal):
+					color = changeColor(self.color, ((x+r) % self.color_grade) * self.color_inc)
+					intense = 1.0 - (0.2 * ((y+r) + ((self.clock+x+r) % self.color_speed)))
+					self.rose.set_cell((x,y), gradient_wheel(color, intense), r)
 
 	def next_frame(self):
 		

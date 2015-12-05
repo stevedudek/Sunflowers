@@ -3,9 +3,10 @@ from random import random, randint, choice
 from HelperFunctions import*
 
 class Band(object):
-	def __init__(self, rosemodel, dist, dir):
+	def __init__(self, rosemodel, r, dist, dir):
 		self.rose = rosemodel
 		self.color = randColor()
+		self.r = r
 		self.p = 0
 		self.d = dist
 		self.dir = dir
@@ -22,7 +23,7 @@ class Band(object):
 			if intensity < 0:
 				intensity = 0
 
-			self.rose.set_cell((p,self.d), gradient_wheel(color,intensity))
+			self.rose.set_cell((p,self.d), gradient_wheel(color,intensity), self.r)
 	
 	def move(self):
 		self.time += 1
@@ -47,11 +48,11 @@ class Bands(object):
 		self.clock = 0
 	
 	def next_frame(self):
-		
-		for d in range(maxDistance):
-			dir = ((d%2)*2)-1 	# -1 or 1
-			new_band = Band(self.rose, d, dir)
-			self.bands.append(new_band)
+		for r in range(maxRose):
+			for d in range(maxDistance):
+				dir = ((d%2)*2)-1 	# -1 or 1
+				new_band = Band(self.rose, r, d, dir)
+				self.bands.append(new_band)
 
 		while (True):
 			for b in self.bands:

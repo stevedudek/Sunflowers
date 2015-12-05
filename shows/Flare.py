@@ -3,23 +3,25 @@ from random import random, randint, choice
 from HelperFunctions import*
 
 class Fader(object):
-	def __init__(self, rosemodel, color, pos, decay):
+	def __init__(self, rosemodel, color, r, pos, decay):
 		self.rose = rosemodel
+		self.r = r
 		self.pos = pos
 		self.color = color
 		self.decay = decay
 		self.life = 1.0
 	
 	def draw(self):
-		self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life))
+		self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life), self.r)
 	
 	def fade(self):
 		self.life -= self.decay
 		return (self.life >= 0)
 
 class Arc(object):
-	def __init__(self, rosemodel, color, petal, dir, start=0, fade=0.1):
+	def __init__(self, rosemodel, color, r, petal, dir, start=0, fade=0.1):
 		self.rose = rosemodel
+		self.r = r
 		self.color = color
 		self.p = petal
 		self.dir = dir	# 1 or -1
@@ -30,7 +32,7 @@ class Arc(object):
 			self.d = 10
 	
 	def draw(self):
-		new_fader = Fader(self.rose, self.color, get_coord((self.p,self.d)), self.fade)
+		new_fader = Fader(self.rose, self.color, self.r, get_coord((self.p,self.d)), self.fade)
 		return new_fader
 	
 	def move(self):
@@ -45,7 +47,7 @@ class Flare(object):
 	def __init__(self, rosemodel):
 		self.name = "Flare"        
 		self.rose = rosemodel
-		self.speed = 0.2 + (randint(0,20) * 0.1)
+		self.speed = 0.1 + (randint(1,5) * 0.1)
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_speed = randint(1,4)
@@ -54,7 +56,7 @@ class Flare(object):
 		self.bright = randint(0,2)
 		self.faders = []	# List that holds Fader objects
 		self.arcs = []	# List that holds Arc objects 
-		self.max_arcs = 5
+		self.max_arcs = 15
 	
 	def draw_sun(self):
 		for y in range(maxDistance):
@@ -88,7 +90,7 @@ class Flare(object):
 			self.move_arcs()
 
 			if oneIn(10) and len(self.arcs) < self.max_arcs:
-				new_arc = Arc(self.rose, changeColor(self.color, maxColor/2),
+				new_arc = Arc(self.rose, randColorRange(self.color, 200), randRose(),
 					randint(0,maxPetal), plusORminus())
 				self.arcs.append(new_arc)
 

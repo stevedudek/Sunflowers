@@ -42,10 +42,6 @@ class SimulatorModel(object):
         for (cell, color) in self.dirty.items():
             (strip, pixel) = cell
             (r,g,b) = self.constrain_color(color)
-            # if color.RGB == (0,0,0):
-                # r,g,b = SIM_DEFAULT
-            # else:
-                # r,g,b = color.RGB
             
             msg = "%s,%s,%s,%s,%s" % (strip, pixel, r,g,b)
             
@@ -55,6 +51,24 @@ class SimulatorModel(object):
             self.sock.send('\n')
 
         self.dirty = {}
+
+    def morph(self, fract):
+        "send a morph amount, a fract/max_steps (see go.py)"
+        msg = "M%s" % (str(int(fract)))
+
+        if self.debug:
+            print msg
+        self.sock.send(msg)
+        self.sock.send('\n')
+
+    def video(self, movie_name):
+        "send a movie name to turn on a movie"
+        msg = "V{}".format(movie_name)
+
+        if self.debug:
+            print msg
+        self.sock.send(msg)
+        self.sock.send('\n')
 
     def relay_OSC_cmd(self, cmd, value):
         "Relay to Processing the OSC command"

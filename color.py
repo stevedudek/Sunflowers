@@ -92,6 +92,19 @@ def hsv_to_rgb(hsv):
     b = int(_rgb[2] * 0xff)
     return (r,g,b)
 
+def rgb_morph(rgb1,rgb2):
+    "interpolate between two rgb's"
+    return hsv_to_rgb(hsv_morph(rgb_to_hsv(rgb1),rgb_to_hsv(rgb2)))
+    
+def hsv_morph(hsv1,hsv2):
+    "interpolate between two hsv's"
+    return HSV(interpolate(hsv1.h,hsv2.h),
+                interpolate(hsv1.s,hsv2.s),
+                interpolate(hsv1.v,hsv2.v) )
+
+def interpolate(val1,val2):
+    return val1 + ((val2-val1)/2.0)
+
 def RGB(r,g,b):
     "Create a new RGB color"
     t = (r,g,b)

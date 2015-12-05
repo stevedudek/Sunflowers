@@ -3,23 +3,20 @@ from random import random, randint, choice
 from HelperFunctions import*
            
 class Fader(object):
-	def __init__(self, rosemodel, color, pos, decay):
+	def __init__(self, rosemodel, color, r, pos, decay):
 		self.rose = rosemodel
+		self.r = r
 		self.pos = pos
 		self.color = color
 		self.decay = decay
 		self.life = 1.0
-	
+
 	def draw(self):
-		self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life))
+		self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life), self.r)
 	
 	def fade(self):
 		self.life -= self.decay
-		if self.life >= 0:
-			return True
-		else:
-			return False
-
+		return (self.life >= 0)
         						
 class ContraRotater(object):
 	def __init__(self, rosemodel):
@@ -40,16 +37,16 @@ class ContraRotater(object):
 			self.rose.set_all_cells((0,0,0))
 			
 			# Create new faders
-
-			for p in range(maxPetal):
-				for d in range(maxDistance):
-					if p % (maxPetal / self.symm) == self.clock % (maxPetal / self.symm):
-						if d % 2 == 0:
-							new_p = maxPetal - p
-						else:
-							new_p = p
-						new_fader = Fader(self.rose, self.color, (new_p,d), self.trail)
-						self.faders.append(new_fader)
+			for r in range(maxRose):
+				for p in range(maxPetal):
+					for d in range(maxDistance):
+						if (p+r) % (maxPetal / (self.symm+r)) == self.clock % (maxPetal / self.symm):
+							if (d+r) % 2 == 0:
+								new_p = maxPetal - p - 1
+							else:
+								new_p = p
+							new_fader = Fader(self.rose, self.color, r, (new_p,d), self.trail)
+							self.faders.append(new_fader)
 			
 			# Draw the Faders
 				
@@ -62,9 +59,12 @@ class ContraRotater(object):
 			
 			self.color = randColorRange(self.color, 5)
 			
+			if oneIn(20):
+				self.trail = inc(self.trail, 0.1, 0.1, 0.5) 
+
 			if oneIn(50):
-				self.symm = (self.symm % 8) + 1
+				self.symm = inc(self.symm, 1, 1, 7)
 
 			self.clock += 1
 
-			yield self.speed  	# random time set in init function
+			yield self.speed

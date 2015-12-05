@@ -21,7 +21,7 @@ class Fader(object):
 	    return True
 	else:
 	    return False
-        						
+
 class Radar(object):
     def __init__(self, rosemodel):
 	self.name = "Radar"
@@ -56,13 +56,13 @@ class Radar(object):
                     x = (ray/2 + r) % maxPetal
                     y = 2*r % maxDistance
                     new_fader = Fader(self.rose, self.color, (x,y), self.trail)
-		    self.faders.append(new_fader)
+                    self.faders.append(new_fader)
             else: #odd ray
                 for r in range(maxDistance/2):
                     x = (ray/2 + r + 1) % maxPetal
                     y = 2*r+1 % maxDistance
                     new_fader = Fader(self.rose, self.color, (x,y), self.trail)
-		    self.faders.append(new_fader)
+                    self.faders.append(new_fader)
 
             # Draw the Faders that were selected and collected just above.
 
@@ -73,7 +73,7 @@ class Radar(object):
 
 	    # Change the colors and symmetry
 
-	    self.color = randColorRange(self.color, 5)
+            self.color = randColorRange(self.color, 5)
 
-	    self.clock += 1
+            self.clock += 1
             yield self.speed #random time set in init function

@@ -2,15 +2,16 @@ from HelperFunctions import*
 from rose import*
 
 class Trail(object):
-	def __init__(self, rosemodel, color, intense, pos, dir):
+	def __init__(self, rosemodel, color, intense, r, pos, dir):
 		self.rose = rosemodel
+		self.r = r
 		self.pos = pos
 		self.color = color
 		self.intense = intense
 		self.dir = (dir + 2) % 4
 	
 	def draw_trail(self):
-		self.rose.set_cell(get_coord(self.pos), gradient_wheel(self.color, self.intense))
+		self.rose.set_cell(get_coord(self.pos), gradient_wheel(self.color, self.intense), self.r)
 	
 	def fade_trail(self):	
 		self.pos = rose_in_direction(self.pos, self.dir, 1)
@@ -18,8 +19,9 @@ class Trail(object):
 		return self.intense > 0.05		
        		
 class Planet(object):
-	def __init__(self, rosemodel, pos, color, dir, life):
+	def __init__(self, rosemodel, r, pos, color, dir, life):
 		self.rose = rosemodel
+		self.r = r
 		self.pos = pos
 		self.color = randColorRange(color, 50)
 		self.dir = dir
@@ -31,8 +33,8 @@ class Planet(object):
 		self.fade_trails()
 		
 		for c in neighbors(get_coord(self.pos)):	
-			self.draw_add_trail(self.color, 0.8, c)
-		self.draw_add_trail(self.color, 1, self.pos)
+			self.draw_add_trail(self.color, 0.8, self.r, c)
+		self.draw_add_trail(self.color, 1, self.r, self.pos)
 	
 	def move_planet(self):
 		self.pos = rose_in_direction(self.pos, self.dir, 1)
@@ -41,11 +43,11 @@ class Planet(object):
 		self.life -= 1
 		return self.life > 0
 		
-	def draw_add_trail(self, color, intense, pos):
+	def draw_add_trail(self, color, intense, r, pos):
 		adj_pos = get_coord(pos)
 		if self.rose.cell_exists(adj_pos):
-			self.rose.set_cell(adj_pos, gradient_wheel(color, intense))
-			new_trail = Trail(self.rose, color, intense, pos, self.dir)
+			self.rose.set_cell(adj_pos, gradient_wheel(color, intense), r)
+			new_trail = Trail(self.rose, color, intense, r, pos, self.dir)
 			self.trails.append(new_trail)
 	
 	def fade_trails(self):
@@ -69,9 +71,9 @@ class Circling(object):
 			
 		while (True):
 			
-			if len(self.planets) < 2:
+			if len(self.planets) < 6:
 				for p in range(0, maxPetal, 6):
-					new_planet = Planet(self.rose, (p,0), self.color, 0, 40)
+					new_planet = Planet(self.rose, randRose(), (p,0), self.color, 0, 40)
 					self.planets.append(new_planet)
 					self.color = changeColor(self.color, -100)
 

@@ -3,26 +3,28 @@ from random import random, randint, choice
 from HelperFunctions import*
 
 class Fader(object):
-	def __init__(self, rosemodel, color, pos, decay):
+	def __init__(self, rosemodel, color, r, pos, decay):
 		self.rose = rosemodel
+		self.r = r
 		self.pos = pos
 		self.color = color
 		self.decay = decay
 		self.life = 1.0
 	
 	def draw(self):
-		self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life))
+		self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life), self.r)
 	
 	def fade(self):
 		self.life -= self.decay
 		return (self.life >= 0)
 
 	def black(self):
-		self.rose.set_cell(self.pos, (0,0,0))
+		self.rose.set_cell(self.pos, (0,0,0), self.r)
 
 class Arc(object):
-	def __init__(self, rosemodel, color, petal, dir, fade=0.1):
+	def __init__(self, rosemodel, color, r, petal, dir, fade=0.1):
 		self.rose = rosemodel
+		self.r = r
 		self.color = color
 		self.p = petal
 		self.d = 5
@@ -30,7 +32,7 @@ class Arc(object):
 		self.fade = fade
 	
 	def draw(self):
-		new_fader = Fader(self.rose, self.color, get_coord((self.p,self.d)), self.fade)
+		new_fader = Fader(self.rose, self.color, self.r, get_coord((self.p,self.d)), self.fade)
 		return new_fader
 	
 	def move(self):
@@ -44,8 +46,9 @@ class Arc(object):
 		return self.color
 
 class Fan(object):
-	def __init__(self, rosemodel, color, petal, fade=0.2):
+	def __init__(self, rosemodel, color, r, petal, fade=0.2):
 		self.rose = rosemodel
+		self.r = r
 		self.color = color
 		self.p = petal
 		self.d = 0
@@ -55,8 +58,8 @@ class Fan(object):
 	def draw(self):
 		faders = []
 		for i,cell in enumerate(get_fan_band(self.d, self.p)):
-			color = changeColor(self.color, i * -5)
-			new_fader = Fader(self.rose, color, cell, self.fade)
+			color = changeColor(self.color, i * -5 * (self.r+1))
+			new_fader = Fader(self.rose, color, self.r, cell, self.fade)
 			faders.append(new_fader)
 		return faders
 	
@@ -86,7 +89,7 @@ class Rain(object):
 		self.faders = []	# List that holds Fader objects
 		self.arcs = []	# List that holds Arc objects
 		self.fans = []	# List that holds Fan objects
-		self.max_arcs = 16
+		self.max_arcs = 48
 		self.dir = 1 	# 1 or -1 for increasing or decreasing
 	
 	def draw_faders(self):
@@ -104,7 +107,7 @@ class Rain(object):
 		for a in self.arcs:
 			if not a.move():
 				new_petal = upORdown(a.get_petal(),1,0,maxPetal-1)
-				new_fan = Fan(self.rose, changeColor(a.get_color(),10), new_petal)
+				new_fan = Fan(self.rose, changeColor(a.get_color(),10), a.r, new_petal)
 				self.fans.append(new_fan)
 				self.arcs.remove(a)
 
@@ -118,9 +121,9 @@ class Rain(object):
 			if not f.move():
 				if self.dir == 1:
 					tips = f.get_fan_tips()
-					new_arc = Arc(self.rose, changeColor(f.get_color(),20), tips[0], 1)
+					new_arc = Arc(self.rose, changeColor(f.get_color(),20), f.r, tips[0], 1)
 					self.arcs.append(new_arc)
-					new_arc = Arc(self.rose, changeColor(f.get_color(),20), tips[1], -1)
+					new_arc = Arc(self.rose, changeColor(f.get_color(),20), f.r, tips[1], -1)
 					self.arcs.append(new_arc)
 					if len(self.arcs) > self.max_arcs:
 						self.dir = -1	 
@@ -130,8 +133,8 @@ class Rain(object):
 
 		while (True):
 			
-			if len(self.fans) == 0:
-				new_fan = Fan(self.rose, self.color, randint(0,maxPetal))
+			if len(self.fans) < 3:
+				new_fan = Fan(self.rose, self.color, randRose(), randint(0,maxPetal))
 				self.fans.append(new_fan)
 				self.dir = 1
 

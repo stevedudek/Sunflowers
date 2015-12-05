@@ -15,15 +15,15 @@ class Flower(object):
 		self.clock = 0
 	
 	def draw_rings(self):
-		for y in range(5,0,-1):
-			
-			for x in get_petal_sym(self.syms[y]):
-				color = changeColor(self.color, ((y + self.clock) % self.color_grade) * self.color_inc)
-				intensity = 1.0 - (0.1 * ((x+y+self.clock) % 8))
-				self.rose.set_cells(get_petal_shape(y,x), gradient_wheel(color, intensity))
+		for r in range(maxRose):
+			for y in range(5,0,-1):
+				for x in get_petal_sym(self.syms[y]):
+					color = changeColor(self.color, ((y+r+self.clock) % self.color_grade) * self.color_inc)
+					intensity = 1.0 - (0.1 * ((y+self.clock) % 8))
+					self.rose.set_cells(get_petal_shape(y,x+r), gradient_wheel(color, intensity),r)
 
-			if oneIn(10):
-				self.syms[y] = (self.syms[y] + 1) % 7
+				if oneIn(10):
+					self.syms[y] = (self.syms[y] + 1) % 7
 
 	def next_frame(self):
 		"""Set up distances with random symmetries"""

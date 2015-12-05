@@ -3,23 +3,25 @@ from random import random, randint, choice
 from HelperFunctions import*
            
 class Fader(object):
-	def __init__(self, rosemodel, color, pos, decay):
+	def __init__(self, rosemodel, color, r, pos, decay):
 		self.rose = rosemodel
+		self.r = r
 		self.pos = pos
 		self.color = color
 		self.decay = decay
 		self.life = 1.0
 	
 	def draw(self):
-		self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life))
+		self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life), self.r)
 	
 	def fade(self):
 		self.life -= self.decay
 		return (self.life >= 0)
 
 class Arc(object):
-	def __init__(self, rosemodel, d, decay):
+	def __init__(self, rosemodel, r, d, decay):
 		self.rose = rosemodel
+		self.r = r
 		self.d = d
 		self.p = 1
 		self.decay = decay
@@ -45,8 +47,7 @@ class Arc(object):
 				self.dir *= -1
 
 		for i,leaf in enumerate(get_fan_band(self.d, self.p)):
-			new_fader = Fader(self.rose, changeColor(color, (i*4) + (self.d*30)),
-				leaf, self.decay)
+			new_fader = Fader(self.rose, changeColor(color, (i*4) + (self.d*30)), self.r, leaf, self.decay)
 			self.faders.append(new_fader)
    
 class WashingMachine(object):
@@ -57,9 +58,10 @@ class WashingMachine(object):
 		self.speed = 0.1
 		self.color = randColor()
 
-		for d in range(1, maxDistance):
-			new_arc = Arc(self.rose, d, (1.0 - (d * 0.1)))
-			self.arcs.append(new_arc)
+		for r in range(maxRose):
+			for d in range(1, maxDistance):
+				new_arc = Arc(self.rose, r, d, (1.0 - (d * 0.1)))
+				self.arcs.append(new_arc)
 		          
 	def next_frame(self):
 		

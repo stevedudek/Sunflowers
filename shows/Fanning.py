@@ -3,26 +3,28 @@ from random import random, randint, choice
 from HelperFunctions import*
 
 class Fader(object):
-	def __init__(self, rosemodel, color, pos, decay):
+	def __init__(self, rosemodel, color, r, pos, decay):
 		self.rose = rosemodel
+		self.r = r
 		self.pos = pos
 		self.color = color
 		self.decay = decay
 		self.life = 1.0
 	
 	def draw(self):
-		self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life))
+		self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life), self.r)
 	
 	def fade(self):
 		self.life -= self.decay
 		return (self.life >= 0)
 
 	def black(self):
-		self.rose.set_cell(self.pos, (0,0,0))
+		self.rose.set_cell(self.pos, (0,0,0), self.r)
 
 class Fan(object):
-	def __init__(self, rosemodel, color, petal, fade=0.1):
+	def __init__(self, rosemodel, color, r, petal, fade=0.1):
 		self.rose = rosemodel
+		self.r = r
 		self.color = color
 		self.p = petal
 		self.d = 0
@@ -31,7 +33,7 @@ class Fan(object):
 	def draw(self):
 		faders = []
 		for c in get_fan_band(self.d,self.p):
-			new_fader = Fader(self.rose, self.color, c, self.fade)
+			new_fader = Fader(self.rose, self.color, self.r, c, self.fade)
 			faders.append(new_fader)
 		return faders
 	
@@ -52,7 +54,7 @@ class Fanning(object):
 		self.clock = 0
 		self.faders = []	# List that holds Fader objects
 		self.fans = []	# List that holds Fan objects 
-		self.max_fans = 4
+		self.max_fans = 12
 	
 	def draw_faders(self):
 		for f in self.faders:
@@ -81,7 +83,7 @@ class Fanning(object):
 
 			if len(self.fans) < self.max_fans:
 				new_fan = Fan(self.rose, randColorRange(self.color, 100),
-					randint(0,maxPetal), 0.3)
+					randRose(), randint(0,maxPetal), 0.3)
 				self.fans.append(new_fan)
 
 			self.color = changeColor(self.color, -2)

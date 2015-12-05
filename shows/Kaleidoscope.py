@@ -16,14 +16,15 @@ class Kaleidoscope(object):
 		self.bright = randint(0,2)
 	
 	def draw_chips(self):
-		for y in range(maxDistance):
-			for x in range(maxPetal):
-				if (x+y) % self.color_grade == 0:
-					x = (x + self.color_grade) % maxPetal
-					y = (y + self.color_speed) % maxDistance
-					color = changeColor(self.color, ((y + self.clock) % self.color_grade) * self.color_inc)
-					intensity = 1.0 - (0.1 * ((x+y+self.clock) % 8))
-					self.rose.set_cell((x,y), gradient_wheel(color, intensity))
+		for r in range(maxRose):
+			for y in range(maxDistance):
+				for x in range(maxPetal):
+					if (x+y+r) % self.color_grade == 0:
+						x = (x + r + self.color_grade) % maxPetal
+						y = (y + r + self.color_speed) % maxDistance
+						color = changeColor(self.color, ((y + r + self.clock) % self.color_grade) * self.color_inc)
+						intensity = 1.0 - (0.1 * ((x+y+self.clock) % 8))
+						self.rose.set_cell((x,y), gradient_wheel(color, intensity), r)
 
 
 	def next_frame(self):

@@ -2,9 +2,10 @@ from HelperFunctions import*
 from rose import*
         		
 class Branch(object):
-	def __init__(self, rosemodel, color, pos, dir, life):
+	def __init__(self, rosemodel, color, r, pos, dir, life):
 		self.rose = rosemodel
 		self.color = color
+		self.r = r
 		self.pos = pos
 		self.dir = dir
 		self.life = life	# How long the branch has been around
@@ -15,7 +16,7 @@ class Branch(object):
 		else:
 			ratio = 1 - self.life/40.0 # light center
 		
-		self.rose.set_cell(get_coord(self.pos), gradient_wheel(self.color, ratio))
+		self.rose.set_cell(get_coord(self.pos), gradient_wheel(self.color, ratio), self.r)
 							
 		# Random chance that path changes
 		if oneIn(3):
@@ -45,10 +46,11 @@ class CenterBranches(object):
 			
 			# Add a center branch
 			
-			if len(self.livebranches) < 3 or oneIn(30):
+			if len(self.livebranches) < 20 or oneIn(30):
 				
 				newbranch = Branch(self.rose,
 					self.maincolor, # color
+					randRose(),		# Rose
 					(0,0), 			# center
 					randDir(), 		# Random initial direction
 					0)				# Life = 0 (new branch)
@@ -60,9 +62,9 @@ class CenterBranches(object):
 				
 				# Chance for branching
 				if oneIn(20):	# Create a fork
-					newdir = turn_left_or_right(b.dir)
-					newbranch = Branch(self.rose, b.color, b.pos, newdir, b.life)
-					self.livebranches.append(newbranch)
+					new_dir = turn_left_or_right(b.dir)
+					new_branch = Branch(self.rose, b.color, b.r, b.pos, new_dir, b.life)
+					self.livebranches.append(new_branch)
 					
 				if b.move_branch() == False:	# branch has moved off the board
 					self.livebranches.remove(b)	# kill the branch

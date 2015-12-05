@@ -15,9 +15,10 @@ class SimpleFan(object):
 		self.clock = 0
 	
 	def draw_flower(self):
-		for p in get_petal_sym(self.sym, self.clock % maxPetal):
-			color = changeColor(self.color, (p + self.clock) * self.color_grade)
-			self.rose.set_cells(get_fan_shape(self.size,p), wheel(color))		
+		for r in range(maxRose):
+			for p in get_petal_sym(self.sym+r, self.clock % maxPetal):
+				color = changeColor(self.color, (p + r + self.clock) * self.color_grade)
+				self.rose.set_cells(get_fan_shape(self.size,p), wheel(color), r)
 
 	def next_frame(self):
 		

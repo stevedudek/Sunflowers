@@ -4,15 +4,16 @@ from HelperFunctions import*
 from rose import rose_in_direction
 
 class Spiro(object):
-	def __init__(self, rosemodel, color, life):
+	def __init__(self, rosemodel, color, r, life):
 		self.rose = rosemodel
+		self.r = r
 		self.color = color
-		self.pos = self.rose.get_rand_cell()
+		self.pos = get_rand_cell()
 		self.dir = randDir()
 		self.life = life
 
 	def draw_spiro(self):
-		self.rose.set_cell(get_coord(self.pos), wheel(self.color))
+		self.rose.set_cell(get_coord(self.pos), wheel(self.color), self.r)
 	
 	def move_spiro(self):			
 		self.pos = rose_in_direction(self.pos, self.dir, 1)
@@ -33,8 +34,8 @@ class Mover(object):
 		
 		while (True):
 			
-			while len(self.spiros) < 3 or oneIn(20):
-				new_spiro = Spiro(self.rose, self.color, randint(24,500))
+			while len(self.spiros) < 9 or oneIn(10):
+				new_spiro = Spiro(self.rose, self.color, randRose(), randint(24,500))
 				self.spiros.append(new_spiro)
 
 			for s in self.spiros:

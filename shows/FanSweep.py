@@ -16,7 +16,7 @@ class FanSweep(object):
 	
 	def draw_flower(self):
 		for p in get_petal_sym(self.sym, self.clock % maxPetal):
-			self.rose.set_cells(get_fan_shape(self.size,p), wheel(self.color))		
+			self.rose.set_cells(get_fan_shape(self.size,p), wheel(self.color))
 
 	def next_frame(self):
 		

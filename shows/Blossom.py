@@ -19,7 +19,7 @@ class Blossom(object):
 	def next_frame(self):
 		
 		while (True):
-			
+
 			for y in range(maxDistance):
 				for x in range(maxPetal):
 					color = changeColor(self.color, (x % self.color_grade) * self.color_inc)
@@ -35,10 +35,10 @@ class Blossom(object):
 				self.color_speed = (self.color_speed % 4) + 1
 			if oneIn(10):
 				self.color_inc = (self.color_inc % 50) + 1
-			if oneIn(100):
+			if oneIn(30):
 				self.color_grade = (self.color_grade % 7) + 2
 			
-			if oneIn(10):
+			if oneIn(2):
 				if self.grow:
 					self.color_decay += 1
 					if self.color_decay > 30:

@@ -3,16 +3,17 @@ from random import random, randint, choice
 from HelperFunctions import*
 
 class Arc(object):
-	def __init__(self, rosemodel, color, petal, dir):
+	def __init__(self, rosemodel, color, r, petal, dir):
 		self.rose = rosemodel
 		self.color = color
+		self.r = r
 		self.p = petal
 		self.d = 5
 		self.dir = dir
 	
 	def draw(self):
 		if randint(1,100) > 10:
-			self.rose.set_cell(get_coord((self.p,self.d)), wheel(self.color))
+			self.rose.set_cell(get_coord((self.p,self.d)), wheel(self.color), self.r)
 	
 	def move(self):
 		self.d += self.dir
@@ -25,8 +26,9 @@ class Arc(object):
 		return self.color
 
 class Fan(object):
-	def __init__(self, rosemodel, color, petal):
+	def __init__(self, rosemodel, color, r, petal):
 		self.rose = rosemodel
+		self.r = r
 		self.color = color
 		self.p = petal
 		self.d = 0
@@ -36,7 +38,7 @@ class Fan(object):
 		for i,cell in enumerate(get_fan_band(self.d, self.p)):
 			if randint(1,100) > 50:
 				color = changeColor(self.color, i * -5)
-				self.rose.set_cell(cell, wheel(color))
+				self.rose.set_cell(cell, wheel(color), self.r)
 	
 	def move(self):
 		self.d += self.dir
@@ -63,7 +65,7 @@ class Mist(object):
 		self.clock = 0
 		self.arcs = []	# List that holds Arc objects
 		self.fans = []	# List that holds Fan objects
-		self.max_arcs = 16
+		self.max_arcs = 48
 		self.dir = 1 	# 1 or -1 for increasing or decreasing
 	
 	def draw_arcs(self):
@@ -74,7 +76,7 @@ class Mist(object):
 		for a in self.arcs:
 			if not a.move():
 				new_petal = upORdown(a.get_petal(),1,0,maxPetal-1)
-				new_fan = Fan(self.rose, changeColor(a.get_color(),10), new_petal)
+				new_fan = Fan(self.rose, changeColor(a.get_color(),10), a.r, new_petal)
 				self.fans.append(new_fan)
 				self.arcs.remove(a)
 
@@ -87,9 +89,9 @@ class Mist(object):
 			if not f.move():
 				if self.dir == 1:
 					tips = f.get_fan_tips()
-					new_arc = Arc(self.rose, changeColor(f.get_color(),20), tips[0], 1)
+					new_arc = Arc(self.rose, changeColor(f.get_color(),20), f.r, tips[0], 1)
 					self.arcs.append(new_arc)
-					new_arc = Arc(self.rose, changeColor(f.get_color(),20), tips[1], -1)
+					new_arc = Arc(self.rose, changeColor(f.get_color(),20), f.r, tips[1], -1)
 					self.arcs.append(new_arc)
 					if len(self.arcs) > self.max_arcs:
 						self.dir = -1	 
@@ -101,8 +103,8 @@ class Mist(object):
 			
 			self.rose.set_all_cells((0,0,0))
 
-			if len(self.fans) == 0:
-				new_fan = Fan(self.rose, self.color, randint(0,maxPetal))
+			while len(self.fans) < 6:
+				new_fan = Fan(self.rose, self.color, randRose(), randint(0,maxPetal))
 				self.fans.append(new_fan)
 				self.dir = 1
 

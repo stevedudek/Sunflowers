@@ -14,16 +14,16 @@ class GearsTwo(object):
 		self.clock = 0
 	
 	def draw_rings(self):
-		for y in range(maxDistance):
-			offset = 0
-			
-			for x in get_petal_sym(self.syms[y], offset):
-				color = changeColor(self.color, ((y + self.clock) % self.color_grade) * self.color_inc)
-				intensity = 1.0 - (0.1 * ((x+y+self.clock) % 8))
-				self.rose.set_cell((x,y), gradient_wheel(color, intensity))
+		for r in range(maxRose):
+			for y in range(maxDistance):
+				offset = 0
+				for x in get_petal_sym(self.syms[y]+r, offset):
+					color = changeColor(self.color, ((y + self.clock + (r*2)) % self.color_grade) * self.color_inc)
+					intensity = 1.0 - (0.1 * ((x+y+self.clock) % 8))
+					self.rose.set_cell((x,y), gradient_wheel(color, intensity), r)
 
-			if oneIn(10):
-				self.syms[y] = (self.syms[y] + 1) % 7
+				if oneIn(10):
+					self.syms[y] = (self.syms[y] + 1) % 7
 
 	def next_frame(self):
 		"""Set up distances with random symmetries"""
