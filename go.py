@@ -11,6 +11,7 @@ import shows
 import util
 
 import cherrypy
+import math
 
 def speed_interpolation(val):
     """
@@ -32,7 +33,7 @@ low_interp = util.make_interpolater(0.0, 0.5, 10.0, 1.0)
 hi_interp  = util.make_interpolater(0.5, 1.0, 1.0, 0.1)
 
 class ShowRunner(threading.Thread):
-    def __init__(self, model, simulator, queue, max_showtime=1000):
+    def __init__(self, model, simulator, queue, max_showtime=300):
         super(ShowRunner, self).__init__(name="ShowRunner")
         self.model = model
         self.simulator = simulator
@@ -189,16 +190,34 @@ class ShowRunner(threading.Thread):
             try:
                 self.check_queue()
 
-                d = self.get_next_frame()
-                self.model.go()
+                d = self.get_next_frame()   # Get the requested delay time
+
                 if d:
-                    real_d = d * self.speed_x
-                    time.sleep(real_d)
-                    self.show_runtime += real_d
+                    # Send all the next_frame data - don't change lights
+                    self.model.go()
+
+                    # Now change lights in steps
+                    max_steps = 10
+                    min_delay = 0.2
+                    delay = d * self.speed_x
+
+                    if delay <= min_delay:  # Very fast time - no morphing
+                        self.model.morph(max_steps)
+                        time.sleep(min_delay)  # The only delay!
+
+                    # elif delay < max_steps * min_delay: # Intermediate time
+                    #     less_steps = int(delay / min_delay) # reduced morphing
+                    #     for step in range(less_steps):
+                    #         self.model.morph(int(10 * step / less_steps))
+                    #         time.sleep(min_delay)  # The only delay!
+                    else:
+                        for step in range(max_steps):   # Slow time
+                            self.model.morph(step+1)
+                            time.sleep(delay / max_steps)  # The only delay!
+                    
+                    self.show_runtime += delay
                     if self.show_runtime > self.max_show_time:
                         print "max show time elapsed, changing shows"
-                        # self.queue.put("run_show:") #next_show
-                        # self.queue.put("clear") #next_show
                         self.next_show()
                 else:
                     print "show is out of frames, waiting..."
@@ -260,9 +279,7 @@ class RoseServer(object):
         try:
             if self.osc_thread:
                 self.osc_thread.start()
-
             self.runner.start()
-
             self.running = True
         except Exception, e:
             print "Exception starting Roses!"
@@ -282,13 +299,13 @@ class RoseServer(object):
                 traceback.print_exc()
 
     def go_headless(self, app):
-      print "Running without web interface"
-      try:
-        while True:
-          time.sleep(999) # control-c breaks out of time.sleep
-      except KeyboardInterrupt:
-          print "Exiting on keyboard interrupt"
-          self.stop()
+        print "Running without web interface"
+        try:
+            while True:
+                time.sleep(999) # control-c breaks out of time.sleep
+        except KeyboardInterrupt:
+            print "Exiting on keyboard interrupt"
+            self.stop()
 
 
     def go_web(self, app):
@@ -341,7 +358,6 @@ class RoseWeb(object):
         ret_html = "this show will run for %s seconds (including time it's already run)" % show_time
         return ret_html + self.redirect_home_html
 
-
     @cherrypy.expose
     def kill(self):
         cherrypy.engine.exit()
@@ -353,8 +369,8 @@ if __name__=='__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Roses Light Control')
 
-    parser.add_argument('--max-time', type=float, default=float(180),
-                        help='Maximum number of seconds a show will run (default 180)')
+    parser.add_argument('--max-time', type=float, default=float(300),
+                        help='Maximum number of seconds a show will run (default 300)')
 
     # Simulator must run to turn on lights
     # parser.add_argument('--simulator',dest='simulator',action='store_true')
