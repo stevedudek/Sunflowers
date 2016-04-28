@@ -14,7 +14,7 @@ class Fader(object):
 		self.rose.set_cell(get_coord(self.pos), wheel(self.color), self.r)
 	
 	def move(self):
-		self.black()
+		self.black(self.pos)
 		self.pos = choice(neighbors(self.pos))
 		self.draw()
 		self.life -= 1
@@ -27,10 +27,10 @@ class Fader(object):
 
 	def rotate_blacken(self, turn):
 		(p,d) = self.pos
-		self.rose.set_cell(get_coord((p + turn, d)), (0,0,0))
+		self.black(get_coord((p + turn, d)))
 
-	def black(self):
-		self.rose.set_cell(self.pos, (0,0,0))
+	def black(self, pos):
+		self.rose.set_cell(get_coord(pos), (0,0,0))
 
 class Firefly(object):
 	def __init__(self, rosemodel):

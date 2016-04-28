@@ -44,9 +44,9 @@ class Planet(object):
 		return self.life > 0
 		
 	def draw_add_trail(self, color, intense, r, pos):
-		adj_pos = get_coord(pos)
-		if self.rose.cell_exists(adj_pos):
-			self.rose.set_cell(adj_pos, gradient_wheel(color, intense), r)
+		(p,d) = get_coord(pos)
+		if self.rose.cell_exists((r,p,d)):
+			self.rose.set_cell((p,d), gradient_wheel(color, intense), r)
 			new_trail = Trail(self.rose, color, intense, r, pos, self.dir)
 			self.trails.append(new_trail)
 	

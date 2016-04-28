@@ -31,11 +31,11 @@ class SimpleFlower(object):
 			if oneIn(40):
 				self.sym = upORdown(self.sym, 1, 2, 5)
 			if oneIn(20):
-				self.size = upORdown(self.size, 1, 2, 5)
+				self.size = upORdown(self.size, 1, 1, 5)
 			if oneIn(40):
-				self.color_grade = inc(self.color_grade,1, 3, 10)
+				self.color_grade = inc(self.color_grade,1,0,8)
 
 			self.color = inc(self.color,-1,0,maxColor)
-			self.clock = (self.clock + 1) % maxPetal
+			self.clock += 1
 
 			yield self.speed  	# random time set in init function

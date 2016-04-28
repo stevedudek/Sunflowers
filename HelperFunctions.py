@@ -1,5 +1,6 @@
 from random import random, randint, choice
 from math import sqrt
+import datetime
 
 #
 # Constants
@@ -227,35 +228,36 @@ def wheel(color):
 # Picks a color in which one rgb channel is off and the other two channels
 # revolve around a color wheel
 def gradient_wheel(color, intense):
+	saturation = datetime.datetime.today().second * 4	# 0 - 240
 	color = color % maxColor  # just in case color is out of bounds
-	channel = color / 256;
+	channel = color // 256;
 	value = color % 256;
 
 	if channel == 0:
 		r = 255
 		g = value
-		b = 0
+		b = saturation
 	elif channel == 1:
 		r = 255 - value
 		g = 255
-		b = 0
+		b = saturation
 	elif channel == 2:
-		r = 0
+		r = saturation
 		g = 255
 		b = value
 	elif channel == 3:
-		r = 0
+		r = saturation
 		g = 255 - value
 		b = 255
 	elif channel == 4:
 		r = value
-		g = 0
+		g = saturation
 		b = 255
 	else:
 		r = 255
-		g = 0
+		g = saturation
 		b = 255 - value
-	
+
 	return (r*intense, g*intense, b*intense)
 	
 # Picks a color in which one rgb channel is ON and the other two channels

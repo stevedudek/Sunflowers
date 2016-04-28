@@ -13,6 +13,8 @@ import util
 import cherrypy
 import math
 
+SPEED_MULT = 5 # Multiply every delay by this value. Higher = much slower shows
+
 def speed_interpolation(val):
     """
     Interpolation function to map OSC input into ShowRunner speed_x
@@ -33,7 +35,7 @@ low_interp = util.make_interpolater(0.0, 0.5, 10.0, 1.0)
 hi_interp  = util.make_interpolater(0.5, 1.0, 1.0, 0.1)
 
 class ShowRunner(threading.Thread):
-    def __init__(self, model, simulator, queue, max_showtime=300):
+    def __init__(self, model, simulator, queue, max_showtime=1000):
         super(ShowRunner, self).__init__(name="ShowRunner")
         self.model = model
         self.simulator = simulator
@@ -190,32 +192,18 @@ class ShowRunner(threading.Thread):
             try:
                 self.check_queue()
 
-                d = self.get_next_frame()   # Get the requested delay time
+                delay = self.get_next_frame()   # Get the requested delay time
 
-                if d:
+                if delay:
+                    adj_delay = delay * SPEED_MULT
+
                     # Send all the next_frame data - don't change lights
                     self.model.go()
+                    self.model.send_delay(adj_delay)
 
-                    # Now change lights in steps
-                    max_steps = 10
-                    min_delay = 0.2
-                    delay = d * self.speed_x
+                    time.sleep(adj_delay)  # The only delay!
 
-                    if delay <= min_delay:  # Very fast time - no morphing
-                        self.model.morph(max_steps)
-                        time.sleep(min_delay)  # The only delay!
-
-                    # elif delay < max_steps * min_delay: # Intermediate time
-                    #     less_steps = int(delay / min_delay) # reduced morphing
-                    #     for step in range(less_steps):
-                    #         self.model.morph(int(10 * step / less_steps))
-                    #         time.sleep(min_delay)  # The only delay!
-                    else:
-                        for step in range(max_steps):   # Slow time
-                            self.model.morph(step+1)
-                            time.sleep(delay / max_steps)  # The only delay!
-                    
-                    self.show_runtime += delay
+                    self.show_runtime += adj_delay
                     if self.show_runtime > self.max_show_time:
                         print "max show time elapsed, changing shows"
                         self.next_show()
@@ -369,8 +357,8 @@ if __name__=='__main__':
     import argparse
     parser = argparse.ArgumentParser(description='Roses Light Control')
 
-    parser.add_argument('--max-time', type=float, default=float(300),
-                        help='Maximum number of seconds a show will run (default 300)')
+    parser.add_argument('--max-time', type=float, default=float(180),
+                        help='Maximum number of seconds a show will run (default 180)')
 
     # Simulator must run to turn on lights
     # parser.add_argument('--simulator',dest='simulator',action='store_true')

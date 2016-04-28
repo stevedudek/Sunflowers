@@ -39,6 +39,8 @@ class SimulatorModel(object):
 
     def go(self):
         "Send all of the buffered commands"
+        self.send_start()
+
         for (cell, color) in self.dirty.items():
             (strip, pixel) = cell
             (r,g,b) = self.constrain_color(color)
@@ -52,18 +54,18 @@ class SimulatorModel(object):
 
         self.dirty = {}
 
-    def morph(self, fract):
-        "send a morph amount, a fract/max_steps (see go.py)"
-        msg = "M%s" % (str(int(fract)))
+    def send_start(self):
+        "send a start signal"
+        msg = "X"   # tell processing that commands are coming
 
         if self.debug:
             print msg
         self.sock.send(msg)
         self.sock.send('\n')
 
-    def video(self, movie_name):
-        "send a movie name to turn on a movie"
-        msg = "V{}".format(movie_name)
+    def send_delay(self, delay):
+        "send a morph amount in milliseconds"
+        msg = "D%s" % (str(int(delay * 1000)))
 
         if self.debug:
             print msg

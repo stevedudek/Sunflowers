@@ -4,32 +4,32 @@ from HelperFunctions import*
            
 class Fader(object):
     def __init__(self, rosemodel, color, pos, decay):
-	self.rose = rosemodel
-	self.pos = pos
-	self.color = color
-	self.decay = decay
-	self.life = 1.0
+        self.rose = rosemodel
+        self.pos = pos
+        self.color = color
+        self.decay = decay
+        self.life = 1.0
 	
     def draw(self):
-	self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life))
+	    self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life))
 	
     def fade(self):
-	self.life -= self.decay
-	if self.life >= 0:
-	    return True
-	else:
-	    return False
+        self.life -= self.decay
+        if self.life >= 0:
+            return True
+        else:
+            return False
 
 class Centipede (object):
     def __init__(self, rosemodel):
-	self.name = "Centipede"
-	self.rose = rosemodel
-	self.faders = []	# List that holds Fader objects
-	self.speed = 0.1
-	self.color = randColor()
-	self.trail = 0.5 / 24.0
+        self.name = "Centipede"
+        self.rose = rosemodel
+        self.faders = []	# List that holds Fader objects
+        self.speed = 0.1
+        self.color = randColor()
+        self.trail = 0.5 / 24.0
         self.change = 10
-	self.clock = 0
+        self.clock = 0
 		          
     def next_frame(self):
 
@@ -81,12 +81,12 @@ class Centipede (object):
 
             if parity % 2 == 0:            # Centipede is down
                 if changetrack == 0:       # keep regular up-down motion
-                    x = (x + 1) % maxPetal
+                    x += 1
                     y += 1
                     parity += 1
                 elif changetrack == 1:     # Go up
                     # print"even up"
-                    x = (x + 1) % maxPetal
+                    x += 1
                     y += 1
                     # parity stays eveb so it can go up twice
                 elif changetrack == -1:    # Go down
@@ -102,7 +102,7 @@ class Centipede (object):
                     parity += 1
                 elif changetrack == 1:
                     # print"odd up"
-                    x = (x + 1) % maxPetal
+                    x += 1
                     y += 1
                     # parity stays odd so it can go up twice
                 elif changetrack == -1:
@@ -115,8 +115,12 @@ class Centipede (object):
 
             # If y goes negative, let it loop to other side
             if y < 0:
-                y = (-1 * y) - 1
+                y = 1 - y
                 x = (x + maxPetal / 2) % maxPetal
+
+            x = (x + maxPetal) % maxPetal
+            y = (y + maxDistance) % maxDistance
+
 
             # This places the coordinates in a fader and appends it to list.
             new_fader = Fader(self.rose, self.color, (x,y), self.trail)

@@ -14,8 +14,8 @@ NUM_BIG_ROSE = 3
 
 ALL_ROSES = 9
 
-from color import*
-from HelperFunctions import distance, get_coord, bound_coord, in_bounds
+import time
+from HelperFunctions import get_coord
 from collections import defaultdict
 from random import choice
 
@@ -48,18 +48,17 @@ class Rose(object):
         "Return the list of valid coords"
         return list(self.cellmap.keys())
 
-    def cell_exists(self, coord, r=0):
-        (p,d) = coord
-        return self.cellmap[(r,p,d)]
+    def cell_exists(self, coord):
+        return self.cellmap[coord]
 
     def set_cell(self, coord, color, r=ALL_ROSES):
-        if self.cell_exists(coord):
-            (p,d) = coord
+        (p,d) = coord
+        if self.cell_exists((0,p,d)):
             if r == ALL_ROSES:
                 for r in range(NUM_BIG_ROSE):
                     self.next_frame[(r,p,d)] = color
             else:
-                self.next_frame[(r,p,d)] = color
+                self.next_frame[(0,p,d)] = color
 
     def set_cells(self, coords, color, r=ALL_ROSES):
         for coord in coords:
@@ -79,8 +78,8 @@ class Rose(object):
         self.model.go()
         self.update_frame()
 
-    def morph(self, fract):
-        self.model.morph(fract)
+    def send_delay(self, delay):
+        self.model.send_delay(delay)
 
     def update_frame(self):
         for coord in self.next_frame:
@@ -88,7 +87,7 @@ class Rose(object):
 
     def send_frame(self):
         for coord,color in self.next_frame.items():
-            if coord in self.curr_frame and self.curr_frame[coord] != color: # Has the color changed? Hashing to color values
+            if self.curr_frame[coord] != color: # Has the color changed? Hashing to color values
                 self.model.set_cells(self.cellmap[coord], color)
 
     def force_frame(self):
