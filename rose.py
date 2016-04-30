@@ -58,7 +58,7 @@ class Rose(object):
                 for r in range(NUM_BIG_ROSE):
                     self.next_frame[(r,p,d)] = color
             else:
-                self.next_frame[(0,p,d)] = color
+                self.next_frame[(r,p,d)] = color
 
     def set_cells(self, coords, color, r=ALL_ROSES):
         for coord in coords:
