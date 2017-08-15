@@ -1,11 +1,10 @@
-from random import random, randint, choice
-
 from HelperFunctions import*
+from sunflower import NUM_SUNFLOWERS
 	
 class Pulse(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "Pulse"        
-		self.rose = rosemodel
+		self.sunflower = sunflower_model
 		self.speed = 0.1 + (randint(0,20) * 0.1)
 		self.color = randColor()
 		self.color_inc = randint(20,50)
@@ -17,16 +16,16 @@ class Pulse(object):
 	def next_frame(self):
 		
 		while (True):
-			for r in range(maxRose):
-				for y in range(maxDistance):
-					for x in range(maxPetal):
-						color = (self.color + (y * self.color_inc * (r+1))) % maxColor
+			for s in range(NUM_SUNFLOWERS):
+				for y in range(self.sunflower.max_dist):
+					for x in range(self.sunflower.num_spirals):
+						color = (self.color + (y * self.color_inc * (s + 1))) % MAX_COLOR
 						intense = 1.0 - (0.1 * ((x + y + self.clock) % self.color_grade))
 
 						if self.bright == 0:
-							self.rose.set_cell((x,y), white_wheel(color, intense), r)
+							self.sunflower.set_cell((s,x,y), white_wheel(color, intense))
 						else:
-							self.rose.set_cell((x,y), gradient_wheel(color, intense), r)
+							self.sunflower.set_cell((s,x,y), gradient_wheel(color, intense))
 
 			# Change it up!
 			if oneIn(40):
@@ -38,7 +37,7 @@ class Pulse(object):
 				if self.color_grade >= 8:
 					self.color_grade = 2
 
-			self.color = (self.color + self.color_speed) % maxColor
+			self.color = (self.color + self.color_speed) % MAX_COLOR
 			self.clock += 1
 
-			yield self.speed  	# random time set in init function
+			yield self.speed

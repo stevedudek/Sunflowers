@@ -1,5 +1,5 @@
 """
-Model to communicate with a Rose simulator over a TCP socket
+Model to communicate with a Sunflower simulator over a TCP socket
 
 """
 import socket
@@ -13,7 +13,7 @@ class SimulatorModel(object):
         self.debug = debug
         self.sock = None
 
-        # list of (strip,pixel) to be sent on the next call to go
+        # list of (s, p, d) to be sent on the next call to go
         self.dirty = {}
 
         self.connect()
@@ -24,12 +24,12 @@ class SimulatorModel(object):
         # XXX throw an exception if the socket isn't available?
 
     def __repr__(self):
-        return "Rose Model(%s, port=%d, debug=%s)" % (self.server[0], self.server[1], self.debug)
+        return "Sunflower Model(%s, port=%d, debug=%s)" % (self.server[0], self.server[1], self.debug)
 
     # Model basics
 
     def set_cell(self, cell, color):
-        "Set a (strip,pixel) coord to a color"
+        "Set a (s, p, d) coord to a color"
         self.dirty[cell] = color
 
     def set_cells(self, cells, color):
@@ -40,12 +40,10 @@ class SimulatorModel(object):
     def go(self):
         "Send all of the buffered commands"
         self.send_start()
-
         for (cell, color) in self.dirty.items():
-            (strip, pixel) = cell
-            (r,g,b) = self.constrain_color(color)
-            
-            msg = "%s,%s,%s,%s,%s" % (strip, pixel, r,g,b)
+            (s, i) = cell
+            (r, g, b) = self.constrain_color(color)
+            msg = "%s,%s,%s,%s,%s" % (s,i, r,g,b)
             
             if self.debug:
                 print msg

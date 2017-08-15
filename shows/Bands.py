@@ -1,12 +1,11 @@
-from random import random, randint, choice
-
 from HelperFunctions import*
+from sunflower import NUM_SUNFLOWERS
 
 class Band(object):
-	def __init__(self, rosemodel, r, dist, dir):
-		self.rose = rosemodel
+	def __init__(self, sunflower_model, s, dist, dir):
+		self.sunflower = sunflower_model
 		self.color = randColor()
-		self.r = r
+		self.s = s
 		self.p = 0
 		self.d = dist
 		self.dir = dir
@@ -16,20 +15,20 @@ class Band(object):
 		self.time = 0
 	
 	def draw(self):
-		for i in range(maxPetal):
-			p = (maxPetal + self.p + (i * self.dir * -1)) % maxPetal
+		for i in range(self.sunflower.num_spirals):
+			p = (self.sunflower.num_spirals + self.p + (i * self.dir * -1)) % self.sunflower.num_spirals
 			color = changeColor(self.color, i * self.grade)
 			intensity = 1.0 - (i * 1.0 / self.fade)
 			if intensity < 0:
 				intensity = 0
 
-			self.rose.set_cell((p,self.d), gradient_wheel(color,intensity), self.r)
+			self.sunflower.set_cell((self.s, p, self.d), gradient_wheel(color,intensity))
 	
 	def move(self):
 		self.time += 1
 		if self.time >= self.speed:
 			self.time = 0
-			self.p = (maxPetal + self.p + self.dir) % maxPetal
+			self.p = (self.sunflower.num_spirals + self.p + self.dir) % self.sunflower.num_spirals
 			self.color = changeColor(self.color,10)
 			
 			if oneIn(50):
@@ -40,18 +39,18 @@ class Band(object):
 				self.fade = upORdown(self.fade, 1, 10, 20)
 	
 class Bands(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "Bands"        
-		self.rose = rosemodel
+		self.sunflower = sunflower_model
 		self.speed = 0.1
 		self.bands = []
 		self.clock = 0
 	
 	def next_frame(self):
-		for r in range(maxRose):
-			for d in range(maxDistance):
+		for s in range(NUM_SUNFLOWERS):
+			for d in range(self.sunflower.max_dist):
 				dir = ((d%2)*2)-1 	# -1 or 1
-				new_band = Band(self.rose, r, d, dir)
+				new_band = Band(self.sunflower, s, d, dir)
 				self.bands.append(new_band)
 
 		while (True):

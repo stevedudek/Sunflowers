@@ -1,129 +1,46 @@
-from random import random, randint, choice
+from HelperClasses import*
 
-from HelperFunctions import*
 
-class Fader(object):
-	def __init__(self, rosemodel, color, r, pos, decay):
-		self.rose = rosemodel
-		self.r = r
-		self.pos = pos
-		self.color = color
-		self.decay = decay
-		self.life = 1.0
-	
-	def draw(self):
-		self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life), self.r)
-	
-	def fade(self):
-		self.life -= self.decay
-		return (self.life >= 0)
-
-	def black(self):
-		self.rose.set_cell(self.pos, (0,0,0), self.r)
-
-class Arc(object):
-	def __init__(self, rosemodel, color, r, petal, dir, fade=0.1):
-		self.rose = rosemodel
-		self.r = r
-		self.color = color
-		self.p = petal
-		self.d = 5
-		self.dir = dir
-		self.fade = fade
-	
-	def draw(self):
-		new_fader = Fader(self.rose, self.color, self.r, get_coord((self.p,self.d)), self.fade)
-		return new_fader
-	
-	def move(self):
-		self.d += self.dir
-		return (self.d >= 0 and self.d <= 10)
-
-	def get_petal(self):
-		return self.p
-
-	def get_color(self):
-		return self.color
-
-class Fan(object):
-	def __init__(self, rosemodel, color, r, petal, fade=0.2):
-		self.rose = rosemodel
-		self.r = r
-		self.color = color
-		self.p = petal
-		self.d = 0
-		self.dir = 1
-		self.fade = fade
-	
-	def draw(self):
-		faders = []
-		for i,cell in enumerate(get_fan_band(self.d, self.p)):
-			color = changeColor(self.color, i * -5 * (self.r+1))
-			new_fader = Fader(self.rose, color, self.r, cell, self.fade)
-			faders.append(new_fader)
-		return faders
-	
-	def move(self):
-		self.d += self.dir
-		return self.d <= 5
-
-	def get_fan_tips(self):
-		cells = get_fan_band(5, self.p)
-		(p0,d0) = cells[0]
-		(px,dx) = cells[-1]
-		return [p0,px]
-
-	def get_color(self):
-		return self.color
-	
 class Rain(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "Rain"        
-		self.rose = rosemodel
+		self.sunflower = sunflower_model
 		self.speed = 0.2 + (randint(0,8) * 0.05)
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_speed = randint(1,4)
 		self.color_grade = randint(2,8)
-		self.clock = 0
-		self.faders = []	# List that holds Fader objects
+		self.faders = Faders(sunflower_model)
 		self.arcs = []	# List that holds Arc objects
 		self.fans = []	# List that holds Fan objects
 		self.max_arcs = 48
 		self.dir = 1 	# 1 or -1 for increasing or decreasing
 	
-	def draw_faders(self):
-		for f in self.faders:
-			f.draw()
-			if not f.fade():
-				f.black()
-				self.faders.remove(f)
-
 	def draw_arcs(self):
 		for a in self.arcs:
-			self.faders.append(a.draw())
+			self.faders.add_fader_obj(a.draw())
 
 	def move_arcs(self):
 		for a in self.arcs:
 			if not a.move():
-				new_petal = upORdown(a.get_petal(),1,0,maxPetal-1)
-				new_fan = Fan(self.rose, changeColor(a.get_color(),10), a.r, new_petal)
+				new_petal = upORdown(a.get_petal(), 1, 0, self.sunflower.num_spirals - 1)
+				new_fan = Fan(self.sunflower, changeColor(a.get_color(),10), a.s, new_petal)
 				self.fans.append(new_fan)
 				self.arcs.remove(a)
 
 	def draw_fans(self):
 		for f in self.fans:
 			for cell in f.draw():
-				self.faders.append(cell)
+				self.faders.add_fader_obj(cell)
 
 	def move_fans(self):
 		for f in self.fans:
 			if not f.move():
 				if self.dir == 1:
 					tips = f.get_fan_tips()
-					new_arc = Arc(self.rose, changeColor(f.get_color(),20), f.r, tips[0], 1)
+					new_arc = Arc(self.sunflower, changeColor(f.get_color(),20), f.s, tips[0], 1)
 					self.arcs.append(new_arc)
-					new_arc = Arc(self.rose, changeColor(f.get_color(),20), f.r, tips[1], -1)
+					new_arc = Arc(self.sunflower, changeColor(f.get_color(),20), f.s, tips[1], -1)
 					self.arcs.append(new_arc)
 					if len(self.arcs) > self.max_arcs:
 						self.dir = -1	 
@@ -134,17 +51,16 @@ class Rain(object):
 		while (True):
 			
 			if len(self.fans) < 3:
-				new_fan = Fan(self.rose, self.color, randRose(), randint(0,maxPetal))
+				new_fan = Fan(self.sunflower, self.color, self.sunflower.rand_sun(), randint(0, self.sunflower.num_spirals))
 				self.fans.append(new_fan)
 				self.dir = 1
 
-			self.draw_faders()
+			self.faders.cycle_faders()
 			self.draw_arcs()
 			self.draw_fans()
 			self.move_arcs()
 			self.move_fans()
 
 			self.color = changeColor(self.color, -2)
-			self.clock += 1
 
 			yield self.speed  	# random time set in init function

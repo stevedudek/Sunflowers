@@ -1,41 +1,40 @@
 from random import random, randint, choice
-from rose import neighbors
 from HelperFunctions import*
 
 class Fader(object):
-	def __init__(self, rosemodel, color, r):
-		self.rose = rosemodel
-		self.r = r
-		self.pos = get_rand_cell()
+	def __init__(self, sunflower_model, color, s):
+		self.sunflower = sunflower_model
+		self.s = s
+		self.pos = self.sunflower.get_rand_cell()
 		self.color = color
 		self.life = randint(20,100)
 	
 	def draw(self):
-		self.rose.set_cell(get_coord(self.pos), wheel(self.color), self.r)
+		self.sunflower.set_cell(meld(self.s, self.pos), wheel(self.color))
 	
 	def move(self):
-		self.black(self.pos)
-		self.pos = choice(neighbors(self.pos))
+		self.black()
+		self.pos = choice(self.sunflower.neighbors(self.pos))
 		self.draw()
 		self.life -= 1
-		return (self.life > 0)
+		return self.life > 0
 
 	def rotate(self):
-		(p,d) = self.pos
+		(p, d) = self.pos
 		self.pos = (p + 1, d)
 		self.draw()
 
 	def rotate_blacken(self, turn):
 		(p,d) = self.pos
-		self.black(get_coord((p + turn, d)))
+		self.sunflower.black_cell(meld(self.s, (p + turn, d)))
 
-	def black(self, pos):
-		self.rose.set_cell(get_coord(pos), (0,0,0))
+	def black(self):
+		self.sunflower.black_cell(meld(self.s, self.pos))
 
 class Firefly(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "Firefly"        
-		self.rose = rosemodel
+		self.sunflower = sunflower_model
 		self.speed = 0.1
 		self.color = randColor()
 		self.color_inc = randint(20,50)
@@ -68,7 +67,7 @@ class Firefly(object):
 		while (True):
 			
 			if len(self.faders) < self.max_faders:
-				new_fader = Fader(self.rose, randColorRange(self.color, self.color_inc), randRose())
+				new_fader = Fader(self.sunflower, randColorRange(self.color, self.color_inc), self.sunflower.rand_sun())
 				self.faders.append(new_fader)
 
 			if self.rotate_life:
@@ -77,7 +76,7 @@ class Firefly(object):
 				self.draw_faders()
 
 			if not self.rotate_life and oneIn(25):
-				self.rotate_max = randint(6, maxPetal)
+				self.rotate_max = randint(6, max(self.sunflower.num_spirals, 7))
 				self.rotate_life = self.rotate_max
 
 			if oneIn(50):

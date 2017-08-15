@@ -1,12 +1,11 @@
-from random import random, randint, choice
-
 from HelperFunctions import*
-	
+from sunflower import NUM_SUNFLOWERS
+
 class CenterSpot(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "CenterSpot"        
-		self.rose = rosemodel
-		self.speed = 0.5 + (randint(0,10) * 0.1)
+		self.sunflower = sunflower_model
+		self.speed = 0.5
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_speed = randint(1,4)
@@ -15,20 +14,20 @@ class CenterSpot(object):
 		self.bright = randint(0,2)
 	
 	def draw_ring(self):
-		for r in range(maxRose):
-			for y in range(5,self.color_speed,-1):
-				for x in range(maxPetal):
-					color = changeColor(self.color, ((x+r) % self.color_grade) * self.color_inc)
-					intense = 1.0 - (0.1 * ((maxDistance-y-1) + ((self.clock+x+r) % self.color_speed)))
-					self.rose.set_cell((x,y), gradient_wheel(color, intense), r)
+		for s in range(NUM_SUNFLOWERS):
+			for y in range(self.sunflower.max_dist-1, self.color_speed, -1):
+				for x in range(self.sunflower.num_spirals):
+					color = changeColor(self.color, ((x+s) % self.color_grade) * self.color_inc)
+					intense = 1.0 - (0.1 * ((self.sunflower.max_dist - y - 1) + ((self.clock + x + s) % self.color_speed)))
+					self.sunflower.set_cell((s,x,y), gradient_wheel(color, intense))
 
 	def draw_sun(self):
-		for r in range(maxRose):
+		for s in range(NUM_SUNFLOWERS):
 			for y in range(self.color_speed):
-				for x in range(maxPetal):
-					color = changeColor(self.color, ((x+r) % self.color_grade) * self.color_inc)
-					intense = 1.0 - (0.2 * ((y+r) + ((self.clock+x+r) % self.color_speed)))
-					self.rose.set_cell((x,y), gradient_wheel(color, intense), r)
+				for x in range(self.sunflower.num_spirals):
+					color = changeColor(self.color, ((x+s) % self.color_grade) * self.color_inc)
+					intense = 1.0 - (0.2 * ((y+s) + ((self.clock+x+s) % self.color_speed)))
+					self.sunflower.set_cell((s,x,y), gradient_wheel(color, intense))
 
 	def next_frame(self):
 		

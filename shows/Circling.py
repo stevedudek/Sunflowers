@@ -1,53 +1,52 @@
 from HelperFunctions import*
-from rose import*
+from sunflower import*
 
 class Trail(object):
-	def __init__(self, rosemodel, color, intense, r, pos, dir):
-		self.rose = rosemodel
-		self.r = r
+	def __init__(self, sunflower_model, color, intense, s, pos, dir):
+		self.sunflower = sunflower_model
+		self.s = s
 		self.pos = pos
 		self.color = color
 		self.intense = intense
 		self.dir = (dir + 2) % 4
 	
 	def draw_trail(self):
-		self.rose.set_cell(get_coord(self.pos), gradient_wheel(self.color, self.intense), self.r)
+		self.sunflower.set_cell(meld(self.s, self.pos), gradient_wheel(self.color, self.intense))
 	
 	def fade_trail(self):	
-		self.pos = rose_in_direction(self.pos, self.dir, 1)
+		self.pos = self.sunflower.petal_in_direction(self.pos, self.dir, 1)
 		self.intense *= 0.9
 		return self.intense > 0.05		
        		
 class Planet(object):
-	def __init__(self, rosemodel, r, pos, color, dir, life):
-		self.rose = rosemodel
-		self.r = r
+	def __init__(self, sunflower_model, s, pos, color):
+		self.sunflower = sunflower_model
+		self.s = s
 		self.pos = pos
 		self.color = randColorRange(color, 50)
-		self.dir = dir
-		self.life = life
+		self.dir = randDir()
+		self.life = 100
 		self.trails = []	# List that holds trails
 		
 	def draw_planet(self):
 		
 		self.fade_trails()
-		
-		for c in neighbors(get_coord(self.pos)):	
-			self.draw_add_trail(self.color, 0.8, self.r, c)
-		self.draw_add_trail(self.color, 1, self.r, self.pos)
+		for c in self.sunflower.neighbors(self.pos):
+			self.draw_add_trail(self.color, 0.8, self.s, c)
+		self.draw_add_trail(self.color, 1, self.s, self.pos)
 	
 	def move_planet(self):
-		self.pos = rose_in_direction(self.pos, self.dir, 1)
+		self.pos = self.sunflower.petal_in_direction(self.pos, self.dir, 1)
 		if oneIn(6):
 			self.dir = turn_right(self.dir)
 		self.life -= 1
 		return self.life > 0
 		
-	def draw_add_trail(self, color, intense, r, pos):
-		(p,d) = get_coord(pos)
-		if self.rose.cell_exists((r,p,d)):
-			self.rose.set_cell((p,d), gradient_wheel(color, intense), r)
-			new_trail = Trail(self.rose, color, intense, r, pos, self.dir)
+	def draw_add_trail(self, color, intense, s, pos):
+		(p,d) = pos
+		if self.sunflower.is_on_board((p,d)):
+			self.sunflower.set_cell((s,p,d), gradient_wheel(color, intense))
+			new_trail = Trail(self.sunflower, color, intense, s, pos, self.dir)
 			self.trails.append(new_trail)
 	
 	def fade_trails(self):
@@ -58,28 +57,27 @@ class Planet(object):
 			
 				
 class Circling(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "Circling"        
-		self.rose = rosemodel
+		self.sunflower = sunflower_model
 		self.planets = []	# List that holds Planet objects
 		self.speed = 0.05
 		self.color = randColor()
 		          
 	def next_frame(self):
 		
-		self.rose.clear()
+		self.sunflower.clear()
 			
 		while (True):
 			
-			if len(self.planets) < 6:
-				for p in range(0, maxPetal, 6):
-					new_planet = Planet(self.rose, randRose(), (p,0), self.color, 0, 40)
+			if len(self.planets) < 6 and oneIn(20):
+				for p in range(0, self.sunflower.num_spirals, 6):
+					new_planet = Planet(self.sunflower, self.sunflower.rand_sun(), self.sunflower.get_rand_cell(), self.color)
 					self.planets.append(new_planet)
 					self.color = changeColor(self.color, -100)
 
-			# Set background to black
-			self.rose.set_all_cells((0,0,0))
-			
+			# self.sunflower.black_cells()
+
 			for p in self.planets:
 				p.draw_planet()
 				if not p.move_planet():

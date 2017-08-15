@@ -6,14 +6,14 @@ import Queue
 import threading
 import signal
 
-import rose
+import sunflower
 import shows
 import util
 
-import cherrypy
+# import cherrypy
 import math
 
-SPEED_MULT = 5 # Multiply every delay by this value. Higher = much slower shows
+SPEED_MULT = 1 # Multiply every delay by this value. Higher = much slower shows
 
 def speed_interpolation(val):
     """
@@ -115,27 +115,12 @@ class ShowRunner(threading.Thread):
             (ns, cmd) = addr[1:].split('/')
             if ns == '1':
                 # control command
-                if cmd == 'video':
-                    self.video = not self.video
-                    self.send_OSC_cmd('video', 0)
-                    if self.video:
-                        print "turning video on"
-                    else:
-                        print "turning video off"                    
-                elif cmd == 'next':
-                    if self.video:
-                        print "next video"
-                        self.send_OSC_cmd('nextvideo', 0)
-                    else:
-                        print "next show"
-                        self.next_show()
+                if cmd == 'next':
+                    print "next show"
+                    self.next_show()
                 elif cmd == 'previous':
                     if self.prev_show:
                         self.next_show(self.prev_show.name)
-                elif cmd == 'speed':
-                    self.speed_x = speed_interpolation(val)
-                    self.send_OSC_cmd('speed', int(val * 10)) # For video player
-                    print "setting speed_x to:", self.speed_x
                 elif cmd == 'brightness':
                     self.send_OSC_cmd('brightness', int(val))
                     self.brightness_x = val
@@ -155,7 +140,6 @@ class ShowRunner(threading.Thread):
     def clear(self):
         self.model.clear()
 
-
     def next_show(self, name=None):
         s = None
         if name:
@@ -170,9 +154,9 @@ class ShowRunner(threading.Thread):
 
         self.clear()
         self.prev_show = self.show
-
         self.show = s(self.model)
-        print "next show:" + self.show.name
+        self.show.sunflower.set_random_family()  # Sets a new family random each time a new show starts
+        print "next show: {} ({})".format(self.show.name, self.show.sunflower.num_spirals)
         self.framegen = self.show.next_frame()
         self.show_params = hasattr(self.show, 'set_param')
         self.show_runtime = 0
@@ -229,11 +213,11 @@ def osc_listener(q, port=5700):
     st.daemon = True
     return st
 
-class RoseServer(object):
-    def __init__(self, rose_model, rose_simulator, args):
+class SunServer(object):
+    def __init__(self, sun_model, sun_simulator, args):
         self.args = args
-        self.rose_model = rose_model
-        self.rose_simulator = rose_simulator
+        self.sun_model = sun_model
+        self.sun_simulator = sun_simulator
 
         self.queue = Queue.LifoQueue()
 
@@ -252,7 +236,7 @@ class RoseServer(object):
             print "WARNING: Can't create OSC listener"
 
         # Show runner
-        self.runner = ShowRunner(self.rose_model, self.rose_simulator,
+        self.runner = ShowRunner(self.sun_model, self.sun_simulator,
             self.queue, args.max_time)
 
         if args.shows:
@@ -261,7 +245,7 @@ class RoseServer(object):
 
     def start(self):
         if self.running:
-            print "start() called, but rose is already running!"
+            print "start() called, but sunflower is already running!"
             return
 
         try:
@@ -270,7 +254,7 @@ class RoseServer(object):
             self.runner.start()
             self.running = True
         except Exception, e:
-            print "Exception starting Roses!"
+            print "Exception starting Sunflowers!"
             traceback.print_exc()
 
     def stop(self):
@@ -283,7 +267,7 @@ class RoseServer(object):
 
                 self.running = False
             except Exception, e:
-                print "Exception stopping Roses!"
+                print "Exception stopping Sunflowers!"
                 traceback.print_exc()
 
     def go_headless(self, app):
@@ -306,11 +290,11 @@ class RoseServer(object):
                     }
                 }
 
-        cherrypy.quickstart(RoseWeb(app),
-                '/',
-                config=config)
+        # cherrypy.quickstart(SunflowerWeb(app),
+        #         '/',
+        #         config=config)
 
-class RoseWeb(object):
+class SunflowerWeb(object):
     def __init__(self, app):
         self.app = app
         self.runner = self.app.runner
@@ -318,44 +302,44 @@ class RoseWeb(object):
         self.redirect_home_html = "<script>setTimeout(function(){window.location='/'},3000)</script>"
         pass
 
-    @cherrypy.expose
-    def index(self):
-        ret_html = "Shows:<br>"
-        for i in self.show_names:
-            ret_html += "<a href=/next_show?show_name=%s > %s </a><br>" % (i,i)
-
-        ret_html += """
-        <form action="/show_time">
-            <input type='text' name='show_time' value={0}></input>
-            <input type='submit' value='set show time'></input>
-        </form>
-        """.format(int(self.runner.max_show_time))
-        return ret_html
-
-    @cherrypy.expose
-    def next_show(self, show_name=None):
-        self.runner.queue.put("run_show:"+show_name)
-        self.runner.queue.put("clear")
-        ret_html = "<a href=/>HOME</a>"
-        return ret_html + self.redirect_home_html
-
-    @cherrypy.expose
-    def show_time(self, show_time=float(180)):
-
-        self.runner.max_show_time = float(show_time)
-        ret_html = "this show will run for %s seconds (including time it's already run)" % show_time
-        return ret_html + self.redirect_home_html
-
-    @cherrypy.expose
-    def kill(self):
-        cherrypy.engine.exit()
-        self.app.stop()
-        import sys
-        sys.exit()
+    # @cherrypy.expose
+    # def index(self):
+    #     ret_html = "Shows:<br>"
+    #     for i in self.show_names:
+    #         ret_html += "<a href=/next_show?show_name=%s > %s </a><br>" % (i,i)
+    #
+    #     ret_html += """
+    #     <form action="/show_time">
+    #         <input type='text' name='show_time' value={0}></input>
+    #         <input type='submit' value='set show time'></input>
+    #     </form>
+    #     """.format(int(self.runner.max_show_time))
+    #     return ret_html
+    #
+    # @cherrypy.expose
+    # def next_show(self, show_name=None):
+    #     self.runner.queue.put("run_show:"+show_name)
+    #     self.runner.queue.put("clear")
+    #     ret_html = "<a href=/>HOME</a>"
+    #     return ret_html + self.redirect_home_html
+    #
+    # @cherrypy.expose
+    # def show_time(self, show_time=float(180)):
+    #
+    #     self.runner.max_show_time = float(show_time)
+    #     ret_html = "this show will run for %s seconds (including time it's already run)" % show_time
+    #     return ret_html + self.redirect_home_html
+    #
+    # @cherrypy.expose
+    # def kill(self):
+    #     cherrypy.engine.exit()
+    #     self.app.stop()
+    #     import sys
+    #     sys.exit()
 
 if __name__=='__main__':
     import argparse
-    parser = argparse.ArgumentParser(description='Roses Light Control')
+    parser = argparse.ArgumentParser(description='Sunflowers Light Control')
 
     parser.add_argument('--max-time', type=float, default=float(180),
                         help='Maximum number of seconds a show will run (default 180)')
@@ -377,20 +361,20 @@ if __name__=='__main__':
     sim_host = "localhost"
     sim_port = 4444
 
-    print "Using Rose Simulator at %s:%d" % (sim_host, sim_port)
+    print "Using Sunfloewr Simulator at %s:%d" % (sim_host, sim_port)
 
     from model.simulator import SimulatorModel
     model = SimulatorModel(sim_host, port=sim_port)
-    full_roses = rose.load_roses(model)
+    full_sunflowers = sunflower.load_sunflowers(model)
 
-    app = RoseServer(full_roses, model, args)
+    app = SunServer(full_sunflowers, model, args)
     try:
         app.start() # start related service threads
         app.go_headless(app)
         #app.go_web(app)
 
     except Exception, e:
-        print "Unhandled exception running Roses!"
+        print "Unhandled exception running Sunflowers!"
         traceback.print_exc()
     finally:
         app.stop()

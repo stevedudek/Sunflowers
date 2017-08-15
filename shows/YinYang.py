@@ -1,66 +1,46 @@
-from random import random, randint, choice
-
-from HelperFunctions import*
-
-class Fader(object):
-	def __init__(self, rosemodel, color, r, pos, decay):
-		self.rose = rosemodel
-		self.r = r
-		self.pos = pos
-		self.color = color
-		self.decay = decay
-		self.life = 1.0
-	
-	def draw(self):
-		self.rose.set_cell(self.pos, wheel(self.color), self.r)
-		# self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life), self.r)
-	
-	def fade(self):
-		self.life -= self.decay
-		return (self.life >= 0)
+from HelperClasses import*
+from sunflower import NUM_SUNFLOWERS
 
 class Petal(object):
-	def __init__(self, rosemodel, color, r, p, d, dir, life, fade=0.1):
-		self.rose = rosemodel
-		self.r = r
+	def __init__(self, sunflower_model, color, s, p, d, direct, life, fade=0.1):
+		self.sunflower = sunflower_model
+		self.s = s
 		self.p = p
 		self.d = d
 		self.color = color
-		self.dir = dir	# 1 or -1
+		self.direct = direct	# 1 or -1
 		self.life = life
 		self.fade = fade
 
 	def draw(self):
-		return [Fader(self.rose, self.color, self.r, c, self.fade) for c in get_petal_shape(self.d, self.p)]
+		return [Fader(self.sunflower, self.color, meld(self.s, c), change=self.fade)
+				for c in self.sunflower.get_petal_shape(self.d, self.p)]
 	
 	def move(self):
-		self.p = (self.p + self.dir + maxPetal) % maxPetal
+		self.p = (self.p + self.direct + self.sunflower.num_spirals) % self.sunflower.num_spirals
 		self.color = randColorRange(self.color, 10)
 		self.life -= 1
 		return self.life
 
 	
 class YinYang(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "YinYang"
-		self.rose = rosemodel
+		self.sunflower = sunflower_model
 		self.speed = 0.2
 		self.color = randColor()
 		self.color_inc = randint(10,20)
 		self.clock = 0
-		self.faders = []	# List that holds Fader objects
+		self.faders = Faders(sunflower_model)
 		self.petals = []	# List that holds Petals objects
-		self.max_arcs = 18
+		self.max_petals = 100
+		self.max_faders = 10000
 	
-	def draw_faders(self):
-		for f in reversed(self.faders):
-			f.draw()
-			if not f.fade():
-				self.faders.remove(f)
-
 	def draw_petals(self):
 		for p in self.petals:
-			self.faders += p.draw()
+			for new_fader in p.draw():
+				if self.faders.num_faders() < self.max_faders:
+					self.faders.add_fader_obj(new_fader)
 
 	def move_petals(self):
 		for p in self.petals:
@@ -71,24 +51,24 @@ class YinYang(object):
 		
 		while (True):
 
-			# Set background to black
-			# self.rose.set_all_cells((0,0,0))
+			# self.sunflower.black_cells()
 
 			if not self.petals:
 				self.color_inc = randint(10,20)
-				life = randint(50,200)
+				life = randint(10,50)
 
-				for r in range(maxRose):
-					dir = plusORminus()
-					fade = (randint(2,6)+r) / 0.1
-					color = self.color
+				for p in self.sunflower.get_petal_sym(randint(2,4), self.clock % self.sunflower.num_spirals):
+					for s in range(NUM_SUNFLOWERS):
 
-					for p in get_petal_sym(0, r + self.clock % maxPetal):
-						new_petal = Petal(self.rose, color, r, p, randint(3,maxDistance), dir, life, fade)
+						direct = plusORminus()
+						fade = 1.0 / (randint(2, 6) + s)
+						color = self.color
+
+						new_petal = Petal(self.sunflower, color, s, p, randint(3, self.sunflower.max_dist), direct, life, fade)
 						self.petals.append(new_petal)
 						color = changeColor(color, self.color_inc)
 
-			self.draw_faders()
+			self.faders.cycle_faders()
 			self.draw_petals()
 			self.move_petals()
 

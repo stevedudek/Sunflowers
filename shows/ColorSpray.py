@@ -1,11 +1,9 @@
-from random import random, randint, choice
-
 from HelperFunctions import*
 	
 class ColorSpray(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "ColorSpray"        
-		self.rose = rosemodel
+		self.sunflower = sunflower_model
 		self.speed = 0.5 + (randint(0,30) * 0.1)
 		self.size = 5
 		self.color = randColor()
@@ -15,14 +13,14 @@ class ColorSpray(object):
 		self.clock = 0
 	
 	def draw_rings(self):
-		for y in range(5,0,-1):
-			
-			for x in get_petal_sym(self.syms[y]):
+		for d in range(self.sunflower.max_dist-1, 0, -1):
+			y = d % len(self.syms)
+			for x in self.sunflower.get_petal_sym(self.syms[y]):
 				
 				color = changeColor(self.color,
 					((y + self.clock) % self.color_grade) * self.color_inc)
 				intensity = 1.0 - (0.1 * ((y+self.clock) % 8))
-				self.rose.set_cells(get_fan_shape(y,x),
+				self.sunflower.set_cells_all_suns(self.sunflower.get_fan_shape(d,x),
 					gradient_wheel(color, intensity))
 
 			if oneIn(10):
@@ -30,8 +28,7 @@ class ColorSpray(object):
 
 	def next_frame(self):
 		"""Set up distances with random symmetries"""
-		for i in range(len(self.syms)):
-			self.syms[i] = randint(0,7)
+		self.syms =	[randint(0,7) for i in range(len(self.syms))]
 
 		while (True):
 			

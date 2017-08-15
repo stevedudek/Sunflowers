@@ -1,32 +1,11 @@
-from random import random, randint, choice
-
-from HelperFunctions import*
-           
-class Fader(object):
-    def __init__(self, rosemodel, color, pos, decay):
-	self.rose = rosemodel
-	self.pos = pos
-	self.color = color
-	self.decay = decay
-	self.life = 1.0
-
-    # draws all the pixels in the list fed to Fader
-    def draw(self):
-	self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life))
-
-    # create the decay effect and drop the pixel from the list if black.
-    def fade(self):
-	self.life -= self.decay
-	if self.life >= 0:
-	    return True
-	else:
-	    return False
+from HelperClasses import*
+from sunflower import NUM_SUNFLOWERS
 
 class Radar(object):
-    def __init__(self, rosemodel):
+    def __init__(self, sunflower_model):
 	self.name = "Radar"
-	self.rose = rosemodel
-	self.faders = []	# List that holds Fader objects
+	self.sunflower = sunflower_model
+	self.faders = Faders(sunflower_model)
 	self.speed = 0.1
 	self.color = randColor()
 	self.trail = 1.0 / 24.0
@@ -35,43 +14,40 @@ class Radar(object):
 		          
     def next_frame(self):
 
-        # Set background to black
-        self.rose.set_all_cells((0,0,0))
+        self.sunflower.black_cells()
 		
         while (True):
 
             """
             Create a list of new faders
             ray is just short for self.clock
-            r goes 0,2,4 then 1,3,5 then 0,2,4 and 1,3,5 over and over.
+            s goes 0,2,4 then 1,3,5 then 0,2,4 and 1,3,5 over and over.
             This is so the radar travels around evenly.
             x and y are the coordinates that go into new_faders
-            x and y  are based on r and ray
+            x and y  are based on s and ray
             self.faders collects the pixels that will light up and fade
             """
 
             ray = self.clock
             if ray % 2 == 0: #even ray
-                for r in range(maxDistance/2):
-                    x = (ray/2 + r) % maxPetal
-                    y = 2*r % maxDistance
-                    new_fader = Fader(self.rose, self.color, (x,y), self.trail)
-                    self.faders.append(new_fader)
+                for s in range((self.sunflower.max_dist/2) + 1):
+                    x = (ray/2 + s) % self.sunflower.num_spirals
+                    y = 2*s % self.sunflower.max_dist
+                    for sun in range(NUM_SUNFLOWERS):
+                        self.faders.add_fader(self.color, (sun, x, y), self.trail)
             else: #odd ray
-                for r in range(maxDistance/2):
-                    x = (ray/2 + r + 1) % maxPetal
-                    y = 2*r+1 % maxDistance
-                    new_fader = Fader(self.rose, self.color, (x,y), self.trail)
-                    self.faders.append(new_fader)
+                for s in range((self.sunflower.max_dist/2) + 1):
+                    x = (ray/2 + s + 1) % self.sunflower.num_spirals
+                    y = 2*s+ 1 % self.sunflower.max_dist
+                    for sun in range(NUM_SUNFLOWERS):
+                        self.faders.add_fader(self.color, (sun, x, y), self.trail)
+
 
             # Draw the Faders that were selected and collected just above.
 
-            for f in self.faders:
-                f.draw()
-	        if not f.fade():
-                    self.faders.remove(f)
+            self.faders.cycle_faders(refresh=False)
 
-	    # Change the colors and symmetry
+	        # Change the colors and symmetry
 
             self.color = randColorRange(self.color, 5)
 

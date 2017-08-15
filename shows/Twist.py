@@ -1,11 +1,10 @@
-from random import random, randint, choice
-
 from HelperFunctions import*
+from sunflower import NUM_SUNFLOWERS
 	
 class Twist(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "Twist"        
-		self.rose = rosemodel
+		self.sunflower = sunflower_model
 		self.speed = 0.1
 		self.color = randColor()
 		self.color_inc = randint(20,50)
@@ -16,20 +15,20 @@ class Twist(object):
 
 	
 	def draw_ring(self):
-		for r in range(maxRose):
-			for y in range(5,self.ring,-1):
-				for x in range(maxPetal):
+		for s in range(NUM_SUNFLOWERS):
+			for y in range(self.sunflower.max_dist -1, self.ring, -1):
+				for x in range(self.sunflower.num_spirals):
 					color = changeColor(self.color, (x % self.color_grade) * self.color_inc)
-					intense = 1.0 - (0.1 * ((maxDistance-y-1) + ((self.clock+x) % self.color_speed)))
-					self.rose.set_cell((x,y), gradient_wheel(color, intense), r)
+					intense = 1.0 - (0.1 * ((self.sunflower.max_dist - y - 1) + ((self.clock + x) % self.color_speed)))
+					self.sunflower.set_cell((s,x,y), gradient_wheel(color, intense))
 
 	def draw_sun(self):
-		for r in range(maxRose):
+		for s in range(NUM_SUNFLOWERS):
 			for y in range(self.ring):
-				for x in range(maxPetal):
+				for x in range(self.sunflower.num_spirals):
 					color = changeColor(self.color, (x % self.color_grade) * self.color_inc)
-					intense = 1.0 - (0.2 * (y + r + ((self.clock+x) % self.color_speed)))
-					self.rose.set_cell(((x+(2*r))%maxPetal,y), gradient_wheel(color, intense), r)
+					intense = 1.0 - (0.2 * (y + s + ((self.clock + x) % self.color_speed)))
+					self.sunflower.set_cell((s, (x+(2*s)) % self.sunflower.num_spirals, y), gradient_wheel(color, intense))
 
 
 	def next_frame(self):
@@ -41,9 +40,9 @@ class Twist(object):
 
 			# Change it up!
 			if oneIn(40):
-				self.ring = (self.ring + 1) % maxDistance
+				self.ring = (self.ring + 1) % self.sunflower.max_dist
 			if oneIn(40):
-				self.color_speed = (self.ring % maxPetal) + 2
+				self.color_speed = (self.ring % self.sunflower.num_spirals) + 2
 			if oneIn(4):
 				self.color_inc = (self.color_inc % 50) + 1
 			if oneIn(100):

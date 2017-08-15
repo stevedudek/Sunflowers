@@ -1,11 +1,10 @@
-from random import random, randint, choice
-
 from HelperFunctions import*
-	
+from sunflower import NUM_SUNFLOWERS
+
 class Kaleidoscope(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "Kaleidoscope"        
-		self.rose = rosemodel
+		self.sunflower = sunflower_model
 		self.speed = 0.5
 		self.color = randColor()
 		self.color_inc = randint(20,50)
@@ -16,29 +15,29 @@ class Kaleidoscope(object):
 		self.bright = randint(0,2)
 	
 	def draw_chips(self):
-		for r in range(maxRose):
-			for y in range(maxDistance):
-				for x in range(maxPetal):
-					if (x+y+r) % self.color_grade == 0:
-						x = (x + r + self.color_grade) % maxPetal
-						y = (y + r + self.color_speed) % maxDistance
-						color = changeColor(self.color, ((y + r + self.clock) % self.color_grade) * self.color_inc)
-						intensity = 1.0 - (0.1 * ((x+y+self.clock) % 8))
-						self.rose.set_cell((x,y), gradient_wheel(color, intensity), r)
+		for s in range(NUM_SUNFLOWERS):
+			for y in range(self.sunflower.max_dist):
+				for x in range(self.sunflower.num_spirals):
+					if (x + y + s) % self.color_grade == 0:
+						x = (x + s + self.color_grade) % self.sunflower.num_spirals
+						y = (y + s + self.color_speed) % self.sunflower.max_dist
+						color = changeColor(self.color, ((y + s + self.clock) % self.color_grade) * self.color_inc)
+						intensity = 1.0 - (0.1 * ((x + y + self.clock) % 8))
+						self.sunflower.set_cell((s,x,y), gradient_wheel(color, intensity))
 
 
 	def next_frame(self):
 		
 		while (True):
 			
-			self.rose.set_all_cells((0,0,0))
+			self.sunflower.set_all_cells((0,0,0))
 			self.draw_chips()
 
 			# Change it up!
 			if oneIn(40):
 				self.density = inc(self.density,1,2,20)
 			if oneIn(40):
-				self.color_speed = inc(self.color_speed,1,1,maxPetal)
+				self.color_speed = inc(self.color_speed, 1, 1, self.sunflower.num_spirals)
 			if oneIn(4):
 				self.color_inc = inc(self.color_inc,1,1,50)
 			if oneIn(100):

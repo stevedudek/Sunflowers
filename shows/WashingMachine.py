@@ -1,81 +1,54 @@
-from random import random, randint, choice
-
-from HelperFunctions import*
-           
-class Fader(object):
-	def __init__(self, rosemodel, color, r, pos, decay):
-		self.rose = rosemodel
-		self.r = r
-		self.pos = pos
-		self.color = color
-		self.decay = decay
-		self.life = 1.0
-	
-	def draw(self):
-		self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life), self.r)
-	
-	def fade(self):
-		self.life -= self.decay
-		return (self.life >= 0)
+from HelperClasses import*
+from sunflower import NUM_SUNFLOWERS
 
 class Arc(object):
-	def __init__(self, rosemodel, r, d, decay):
-		self.rose = rosemodel
-		self.r = r
+	def __init__(self, sunflower_model, s, p, d, decay):
+		self.sunflower = sunflower_model
+		self.s = s
+		self.p = p
 		self.d = d
-		self.p = 1
 		self.decay = decay
-		self.faders = []	# List that holds Fader objects
-		self.dir = 1
-	
-	def draw(self):
-		# Draw the Faders		
-		for f in self.faders:
-			f.draw()
-			if not f.fade():
-				self.faders.remove(f)
+		self.faders = Faders(sunflower_model)	# List that holds Fader objects
+		self.direct = plusORminus()
 
-	def move(self, color):
-		
-		self.p += self.dir
+	def move_and_draw(self, color):
+		self.faders.cycle_faders(refresh=False)
 
-		if (self.p % maxPetal) == 0:
-			self.dir *= -1
+		for i, leaf in enumerate(self.sunflower.get_fan_band(self.d, self.p)):
+			self.faders.add_fader(changeColor(color, (i*4) + (self.d * 30)), meld(self.s, leaf), change=self.decay)
 
-		if self.p == 12:
-			if oneIn(2) == 1:
-				self.dir *= -1
+		self.d += 1
+		self.p = (self.p + self.direct) % self.sunflower.num_spirals
 
-		for i,leaf in enumerate(get_fan_band(self.d, self.p)):
-			new_fader = Fader(self.rose, changeColor(color, (i*4) + (self.d*30)), self.r, leaf, self.decay)
-			self.faders.append(new_fader)
+		if self.d > (self.sunflower.max_dist * 2):
+			self.faders.fade_all()
+			return False
+
+		return True
    
 class WashingMachine(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "WashingMachine"        
-		self.rose = rosemodel
+		self.sunflower = sunflower_model
 		self.arcs = []	# List that holds Arc objects
 		self.speed = 0.1
 		self.color = randColor()
-
-		for r in range(maxRose):
-			for d in range(1, maxDistance):
-				new_arc = Arc(self.rose, r, d, (1.0 - (d * 0.1)))
-				self.arcs.append(new_arc)
 		          
 	def next_frame(self):
 		
 		while (True):
-			
-			# Set background to black
-			self.rose.set_all_cells((0,0,0))
-			
-			for a in self.arcs:
-				a.move(self.color)
-				a.draw()
 
-			# Change the colors and symmetry
-			
+			if len(self.arcs) < 3 or oneIn(20):
+				for s in range(NUM_SUNFLOWERS):
+					new_arc = Arc(self.sunflower, s, p=self.sunflower.rand_spiral(), d=0, decay=0.1)
+					self.arcs.append(new_arc)
+
+			self.sunflower.black_cells()	# Set background to black
+
+			for a in self.arcs:
+				if not a.move_and_draw(self.color):
+					self.arcs.remove(a)
+
 			self.color = randColorRange(self.color, 5)
 			
 			yield self.speed  	# random time set in init function

@@ -1,12 +1,11 @@
-from random import random, randint, choice
-
 from HelperFunctions import*
-	
+from sunflower import NUM_SUNFLOWERS
+
 class SimpleFlower(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "SimpleFlower"        
-		self.rose = rosemodel
-		self.speed = 0.1#0.5 + (randint(0,5) * 0.1)
+		self.sunflower = sunflower_model
+		self.speed = 0.1
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_grade = randint(0,3)
@@ -15,16 +14,16 @@ class SimpleFlower(object):
 		self.clock = 0
 	
 	def draw_flower(self):
-		for r in range(maxRose):
-			for i,p in enumerate(get_petal_sym(self.sym, self.clock % maxPetal)):
-				color = changeColor(self.color, (i + self.clock + r) * self.color_grade)
-				self.rose.set_cells(get_petal_shape(self.size,p), wheel(color), r)
-
+		for s in range(NUM_SUNFLOWERS):
+			for i, p in enumerate(self.sunflower.get_petal_sym(self.sym, self.clock % self.sunflower.num_spirals)):
+				color = changeColor(self.color, (i + self.clock + s) * self.color_grade)
+				self.sunflower.set_cells(meld_coords(s, self.sunflower.get_petal_shape(self.size,p)), wheel(color))
+				## get_petal_shape() is borked
 	def next_frame(self):
 		
 		while (True):
 			
-			self.rose.set_all_cells((0,0,0))
+			self.sunflower.black_cells()
 			self.draw_flower()
 
 			# Change it up!
@@ -35,7 +34,7 @@ class SimpleFlower(object):
 			if oneIn(40):
 				self.color_grade = inc(self.color_grade,1,0,8)
 
-			self.color = inc(self.color,-1,0,maxColor)
+			self.color = inc(self.color, -1, 0, MAX_COLOR)
 			self.clock += 1
 
 			yield self.speed  	# random time set in init function

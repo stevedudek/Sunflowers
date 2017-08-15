@@ -1,17 +1,17 @@
-from random import random, randint, choice
+from random import choice
 
-from HelperFunctions import*
+from HelperClasses import*
            
 class Fader(object):
-    def __init__(self, rosemodel, color, pos, decay):
-        self.rose = rosemodel
+    def __init__(self, sunflower_model, color, pos, decay):
+        self.sunflower = sunflower_model
         self.pos = pos
         self.color = color
         self.decay = decay
         self.life = 1.0
 	
     def draw(self):
-	    self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life))
+	    self.sunflower.set_cell_all_suns(self.pos, gradient_wheel(self.color, self.life))
 	
     def fade(self):
         self.life -= self.decay
@@ -21,20 +21,20 @@ class Fader(object):
             return False
 
 class Centipede (object):
-    def __init__(self, rosemodel):
+    def __init__(self, sunflower_model):
         self.name = "Centipede"
-        self.rose = rosemodel
-        self.faders = []	# List that holds Fader objects
+        self.sunflower = sunflower_model
+        self.faders = Faders(self.sunflower)
         self.speed = 0.1
         self.color = randColor()
-        self.trail = 0.5 / 24.0
+        self.trail = 1 / 50.0
         self.change = 10
         self.clock = 0
 		          
     def next_frame(self):
 
         # Set background to black
-        self.rose.set_all_cells((0,0,0))
+        # self.sunflower.set_all_cells((0,0,0))
 
         # changetrack is the flag letting the main loop know whether
         # it's time to change tracks, selected by oneIn() below.
@@ -56,7 +56,7 @@ class Centipede (object):
 
             #if not oneIn(100): # change directions one in a hundred.
             if oneIn(self.change):      # change tracks this often
-                if y > 4:               # Can't get farther from center, so:
+                if y > self.sunflower.max_dist - 1:               # Can't get farther from center, so:
                     changetrack -= 1    # move one track towards center
                 else:
                     changetrack += choice([-1,1])  # Move one track over
@@ -116,26 +116,19 @@ class Centipede (object):
             # If y goes negative, let it loop to other side
             if y < 0:
                 y = 1 - y
-                x = (x + maxPetal / 2) % maxPetal
+                x = (x + self.sunflower.num_spirals / 2) % self.sunflower.num_spirals
 
-            x = (x + maxPetal) % maxPetal
-            y = (y + maxDistance) % maxDistance
+            x = (x + self.sunflower.num_spirals) % self.sunflower.num_spirals
+            y = (y + self.sunflower.max_dist) % self.sunflower.max_dist
 
+            for s in range(self.sunflower.num_sunflowers):
+                self.faders.add_fader(randColorRange(self.color, 50), meld(s, (x,y)), change=self.trail)
 
-            # This places the coordinates in a fader and appends it to list.
-            new_fader = Fader(self.rose, self.color, (x,y), self.trail)
-            self.faders.append(new_fader)
-
-            # Draw the Faders
-
-            for f in self.faders:
-                f.draw()
-	        if not f.fade():
-                    self.faders.remove(f)
+            self.faders.cycle_faders(refresh=False)
 
 	    # Change the colors and symmetry
 
-	    self.color = randColorRange(self.color, 5)
+	    self.color = randColorRange(self.color, 50)
 
 	    self.clock += 1
             yield self.speed #random time set in init function

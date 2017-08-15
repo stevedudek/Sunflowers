@@ -1,68 +1,46 @@
-from random import random, randint, choice
-
-from HelperFunctions import*
-
-class Fader(object):
-	def __init__(self, rosemodel, color, r, pos, decay):
-		self.rose = rosemodel
-		self.r = r
-		self.pos = pos
-		self.color = color
-		self.decay = decay
-		self.life = 1.0
-
-	def draw(self):
-		self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life), self.r)
-	
-	def fade(self):
-		self.life -= self.decay
-		return (self.life >= 0)
+from HelperClasses import *
 
 class Arc(object):
-	def __init__(self, rosemodel, color, r, petal, dir, start=0, fade=0.1):
-		self.rose = rosemodel
+	def __init__(self, sunflower_model, color, s, p, d, dir, fade):
+		self.sunflower = sunflower_model
 		self.color = color
-		self.r = r
-		self.p = petal
-		self.dir = dir	# 1 or -1
+		self.s = s
+		self.p = p
+		self.d = d	# 1 or -1
+		self.dir = dir
 		self.fade = fade
 		if self.dir == 1:
 			self.d = 0
 		else:
-			self.d = 10
+			self.d = (self.sunflower.max_dist - 1) * 2
 
 	def draw(self):
-		new_fader = Fader(self.rose, self.color, self.r, get_coord((self.p,self.d)), self.fade)
-		return new_fader
+		return Fader(self.sunflower, self.color, (self.s, self.p, self.d), change=self.fade)
 	
 	def move(self):
 		self.d += self.dir
-		return (self.d >= 0 and self.d <= 10)
+		return self.d >= 0 and self.d <= (self.sunflower.max_dist - 1) * 2
 
 	
 class Arcing(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "Arcing"        
-		self.rose = rosemodel
-		self.speed = 0.2 + (randint(0,3) * 0.1)
+		self.sunflower = sunflower_model
+		self.sunflower.set_random_family()
+		self.speed = 0.1 #0.2 + (randint(0,3) * 0.1)
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_speed = randint(1,4)
 		self.color_grade = randint(2,8)
 		self.clock = 0
-		self.faders = []	# List that holds Fader objects
-		self.arcs = []	# List that holds Arc objects 
+		self.faders = Faders(sunflower_model)
+		self.arcs = []	# List that holds Arc objects
+		self.fade_amount = randint(5,20)
 		self.max_arcs = 50
 	
-	def draw_faders(self):
-		for f in self.faders:
-			f.draw()
-			if not f.fade():
-				self.faders.remove(f)
-
 	def draw_arcs(self):
 		for a in self.arcs:
-			self.faders.append(a.draw())
+			self.faders.add_fader_obj(a.draw())
 
 	def move_arcs(self):
 		for a in self.arcs:
@@ -73,16 +51,20 @@ class Arcing(object):
 		
 		while (True):
 			
-			self.draw_faders()
+			self.faders.cycle_faders()
 			self.draw_arcs()
 			self.move_arcs()
 
 			if len(self.arcs) < self.max_arcs:
-				new_arc = Arc(self.rose, randColorRange(self.color, 100),
-					randRose(), randPetal(), plusORminus())
+				new_arc = Arc(self.sunflower, randColorRange(self.color, 100),
+							  self.sunflower.rand_sun(), self.sunflower.rand_spiral(), self.sunflower.rand_dist(),
+							  plusORminus(), 1.0 / self.fade_amount)
 				self.arcs.append(new_arc)
 
-			self.color = changeColor(self.color, -2)
+			# self.color = changeColor(self.color, -2)
 			self.clock += 1
+
+			if oneIn(50):
+				self.fade_amount = upORdown(self.fade_amount, 1, 4, 20)
 
 			yield self.speed  	# random time set in init function

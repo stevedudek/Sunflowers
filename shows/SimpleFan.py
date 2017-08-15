@@ -1,41 +1,42 @@
-from random import random, randint, choice
-
 from HelperFunctions import*
+from sunflower import NUM_SUNFLOWERS
 	
 class SimpleFan(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "SimpleFan"        
-		self.rose = rosemodel
+		self.sunflower = sunflower_model
 		self.speed = 0.2 + (randint(0,5) * 0.1)
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_grade = randint(0,3)
 		self.sym = randint(1,6)
-		self.size = randint(0,5)
+		self.min_size = int(self.sunflower.max_dist / 2)
+		self.size = randint(self.min_size, self.sunflower.max_dist)
 		self.clock = 0
 	
 	def draw_flower(self):
-		for r in range(maxRose):
-			for p in get_petal_sym(self.sym+r, self.clock % maxPetal):
-				color = changeColor(self.color, (p + r + self.clock) * self.color_grade)
-				self.rose.set_cells(get_fan_shape(self.size,p), wheel(color), r)
+		for s in range(NUM_SUNFLOWERS):
+			for p in self.sunflower.get_petal_sym(self.sym + s, self.clock % self.sunflower.num_spirals):
+				color = changeColor(self.color, (p + s + self.clock) * self.color_grade)
+				self.sunflower.set_cells(meld_coords(s, self.sunflower.get_fan_shape(self.size, p)), wheel(color))
+				## get_fan_shape() is borked
 
 	def next_frame(self):
 		
 		while (True):
 			
-			self.rose.set_all_cells((0,0,0))
+			self.sunflower.black_cells()
 			self.draw_flower()
 
 			# Change it up!
 			if oneIn(40):
-				self.sym = upORdown(self.sym, 1, 1, 5)
-			if oneIn(20):
-				self.size = upORdown(self.size, 1, 1, 5)
+				self.sym = upORdown(self.sym, 1, 1, self.sunflower.max_dist)
+			if oneIn(4):
+				self.size = upORdown(self.size, 1, self.min_size, self.sunflower.max_dist)
 			if oneIn(40):
 				self.color_grade = inc(self.color_grade,1,0,8)
 
-			self.color = inc(self.color,-1,0,maxColor)
+			self.color = inc(self.color, -1, 0, MAX_COLOR)
 			self.clock += 1
 
 			yield self.speed  	# random time set in init function

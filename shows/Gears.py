@@ -1,11 +1,10 @@
-from random import random, randint, choice
-
 from HelperFunctions import*
-	
+from sunflower import NUM_SUNFLOWERS
+
 class Gears(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "Gears"        
-		self.rose = rosemodel
+		self.sunflower = sunflower_model
 		self.speed = 0.5
 		self.color = randColor()
 		self.color_inc = randint(20,50)
@@ -17,19 +16,19 @@ class Gears(object):
 		self.bright = randint(0,2)
 	
 	def draw_rings(self):
-		for r in range(maxRose):
-			for y in range(maxDistance):
-				offset = self.clock % maxPetal
+		for s in range(NUM_SUNFLOWERS):
+			for y in range(self.sunflower.max_dist):
+				offset = self.clock % self.sunflower.num_spirals
 				if y % 2:
-					offset = maxPetal - offset
+					offset = self.sunflower.num_spirals - offset
 
-				for x in get_petal_sym(self.syms[y], offset):
+				for x in self.sunflower.get_petal_sym(self.syms[y % len(self.syms)], offset):
 					color = changeColor(self.color, ((y + self.clock) % self.color_grade) * self.color_inc)
-					intensity = 1.0 - (0.1 * ((y+r+self.clock) % 11))
-					self.rose.set_cell((x,y), gradient_wheel(color, intensity), r)
+					intensity = 1.0 - (0.05 * ((y + s + self.clock) % ((self.sunflower.max_dist * 2) - 1)))
+					self.sunflower.set_cell((s,x,y), gradient_wheel(color, intensity))
 
 				if oneIn(10):
-					self.syms[y] = (self.syms[y] + 1) % 8
+					self.syms[y % len(self.syms)] = (self.syms[y % len(self.syms)] + 1) % 8
 
 	def next_frame(self):
 		"""Set up distances with random symmetries"""
@@ -38,14 +37,14 @@ class Gears(object):
 
 		while (True):
 			
-			#self.rose.set_all_cells((0,0,0))
+			# self.sunflower.black_cells()
 			self.draw_rings()
 
 			# Change it up!
 			if oneIn(40):
 				self.density = inc(self.density,1,2,20)
 			if oneIn(40):
-				self.color_speed = inc(self.color_speed,1,1,maxPetal)
+				self.color_speed = inc(self.color_speed, 1, 1, self.sunflower.num_spirals)
 			if oneIn(4):
 				self.color_inc = inc(self.color_inc,1,1,50)
 			if oneIn(100):

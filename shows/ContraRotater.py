@@ -1,28 +1,11 @@
-from random import random, randint, choice
-
-from HelperFunctions import*
+from HelperClasses import*
+from sunflower import NUM_SUNFLOWERS
            
-class Fader(object):
-	def __init__(self, rosemodel, color, r, pos, decay):
-		self.rose = rosemodel
-		self.r = r
-		self.pos = pos
-		self.color = color
-		self.decay = decay
-		self.life = 1.0
-
-	def draw(self):
-		self.rose.set_cell(self.pos, gradient_wheel(self.color, self.life), self.r)
-	
-	def fade(self):
-		self.life -= self.decay
-		return (self.life >= 0)
-        						
 class ContraRotater(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "ContraRotater"        
-		self.rose = rosemodel
-		self.faders = []	# List that holds Fader objects
+		self.sunflower = sunflower_model
+		self.faders = Faders(self.sunflower)
 		self.speed = 0.5
 		self.color = randColor()
 		self.trail = 0.2
@@ -33,27 +16,21 @@ class ContraRotater(object):
 		
 		while (True):
 			
-			# Set background to black
-			self.rose.set_all_cells((0,0,0))
+			self.sunflower.black_cells()
 			
 			# Create new faders
-			for r in range(maxRose):
-				for p in range(maxPetal):
-					for d in range(maxDistance):
-						if (p+r) % (maxPetal / (self.symm+r)) == self.clock % (maxPetal / self.symm):
-							if (d+r) % 2 == 0:
-								new_p = maxPetal - p - 1
+			for s in range(NUM_SUNFLOWERS):
+				for p in range(self.sunflower.num_spirals):
+					for d in range(self.sunflower.max_dist):
+						if (p+s) % (self.sunflower.num_spirals / (self.symm + s)) == self.clock % (self.sunflower.num_spirals / self.symm):
+							if (d+s) % 2 == 0:
+								new_p = self.sunflower.num_spirals - p - 1
 							else:
 								new_p = p
-							new_fader = Fader(self.rose, self.color, r, (new_p,d), self.trail)
-							self.faders.append(new_fader)
+
+							self.faders.add_fader(self.color, (s, new_p, d), change=self.trail)
 			
-			# Draw the Faders
-				
-			for f in self.faders:
-				f.draw()
-				if not f.fade():
-					self.faders.remove(f)
+			self.faders.cycle_faders()	# Draw the Faders
 			
 			# Change the colors and symmetry
 			

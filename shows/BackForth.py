@@ -1,94 +1,71 @@
 from HelperFunctions import*
-from rose import*
-
-class Sparkle(object):
-	def __init__(self, rosemodel, color, r, pos, life):
-		self.rose = rosemodel
-		self.r = r
-		self.pos = pos
-		self.color = color
-		self.intense = 1.0
-		self.life = life
-	
-	def draw_sparkle(self):
-		self.rose.set_cell(self.pos, gradient_wheel(self.color, self.intense), self.r)
-	
-	def fade_sparkle(self):
-		self.intense -= 1.0 / self.life
-		if self.intense > 0:
-			return True
-		else:
-			return False
+from HelperClasses import*
+from sunflower import*
 
 class Ball(object):
-	def __init__(self, rosemodel, r, pos, dir, color, life):
-		self.rose = rosemodel
+	def __init__(self, sunflower_model, sun, pos, dir, color, change):
+		self.sunflower = sunflower_model
 		self.color = color
-		self.r = r
-		self.pos = pos		
 		self.dir = dir
-		self.life = life
-		self.sparkles = []	# List that holds Sparkle objects
+		self.change = change
+		self.sun = sun
+		self.pos = pos
+		self.faders = Faders(self.sunflower)
 
-		new_sparkle = Sparkle(self.rose, self.color, self.r, get_coord(self.pos), self.life)
-		self.sparkles.append(new_sparkle)
+	def move_and_draw_ball(self):
+		self.faders.cycle_faders(refresh=False)
 
-	def draw_ball(self):
-		
-		# Draw the sparkles
-		for s in self.sparkles:
-			s.draw_sparkle()
-			if s.fade_sparkle() == False:
-				self.sparkles.remove(s)
-
-	def move_ball(self):
-
-		if oneIn(50):
+		if oneIn(20):
 			self.dir = randDir()
 
-		self.pos = rose_in_direction(self.pos, self.dir)
+		max_tries = 5
+		tries = 0
+		while tries < max_tries:
+			new_pos = self.sunflower.petal_in_direction(self.pos, self.dir)
+			if self.sunflower.is_on_board(new_pos):
+				break
+			self.dir = randDir()
+			tries +=1
+		self.pos = new_pos
 
-		new_sparkle = Sparkle(self.rose, self.color, self.r, get_coord(self.pos), self.life)
-		self.sparkles.append(new_sparkle)
+		if tries > max_tries or oneIn(100):
+			self.faders.fade_all()
+			return False
+
+		self.faders.add_fader(self.color, meld(self.sun, self.pos), change=self.change)
+		return True
 		
 
 class BackForth(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "BackForth"        
-		self.rose = rosemodel
+		self.sunflower = sunflower_model
 		self.balls = []	# List that holds Ball objects
-		self.num_balls = 20
-		self.time = 0
-		self.speed = 0.02
-		self.life = randint(5,25)
+		self.num_balls = randint(5,20)
+		self.speed = 0.2
+		self.change_amt = randint(5,25)
 		self.color = randColor()
 
 	def next_frame(self):
 
-		# Set up the balls
-
-		line = rose_in_line((0,5), 1, maxPetal)
-			
-		for i in range(self.num_balls):
-			new_ball = Ball(self.rose, randRose(), choice(line), 0, randColorRange(self.color, 200), self.life)
-			self.balls.append(new_ball)
-
 		while (True):
-			
-			# Set background to black
-			self.rose.set_all_cells((0,0,0))
+
+			while len(self.balls) < 10:
+				new_ball = Ball(self.sunflower, self.sunflower.rand_sun(), (self.sunflower.rand_spiral(), 3), 0,
+								randColorRange(self.color, 200), 1.0 / self.change_amt)
+				self.balls.append(new_ball)
+
+			self.sunflower.black_cells()
 
 			# Move and draw the balls
 
 			for b in self.balls:
-				b.move_ball()
-				b.draw_ball()
+				if not b.move_and_draw_ball():
+					self.balls.remove(b)
 			
 			if oneIn(50):
-				self.life = (self.life + 1) % 20
+				self.change_amt = upORdown(self.change_amt, 1, 5, 25)
 				
-			self.time += 1
-			
-			self.color = (self.color + 1) % maxColor					
+			self.color = (self.color + 1) % MAX_COLOR
 			
 			yield self.speed

@@ -1,17 +1,11 @@
-from random import random, randint, choice
-from math import sqrt, sin
-import datetime
+from random import randint
+from math import sqrt
 
 #
 # Constants
 #
-
-maxPetal = 24
-maxDistance = 6
-maxColor = 1536
-maxDir = 6
-maxRose = 3
-NUM_PIXELS = 144
+MAX_COLOR = 1536
+MAX_DIR = 4
 
 #
 # Common random functions
@@ -42,159 +36,35 @@ def bounds(value, min, max):
 		value = min
 	return value
 
-# Get a random rose
-def randRose():
-	return randint(0, maxRose-1)
+# Convert s, (p, d) to (s, p, d)
+def meld(s, (p, d)):
+	return ((s, p, d))
 
-# Get a random petal
-def randPetal():
-	return randint(0, maxPetal-1)
-
-# Get a random distance
-def randDistance():
-	return randint(0, maxDistance-1)
-
-# Get a random cell
-def get_rand_cell():
-	return (randPetal(),randDistance())
-
-# Get a random direction
-def randDir():
-	return randint(0, maxDir-1)
-
-# Return the left direction
-def turn_left(dir):
-	return (maxDir + dir - 1) % maxDir
-	
-# Return the right direction
-def turn_right(dir):
-	return (dir + 1) % maxDir
-
-# Randomly turn left, straight, or right
-def turn_left_or_right(dir):
-	return (maxDir + dir + randint(-1,1) ) % maxDir
-
-# Shift petals - for interesting effect, shift=5 is the cosine geometry
-def shift_petal(p, shift=5):
-	return (((p % shift) * shift) + (p / shift)) % 24
-
-# In Bounds: hack for the Hourglass geometry. Creates a fram
-def in_bounds(coord):
-	(pedal,distance) = coord
-	return pedal >= 0 and pedal < 24 and distance >= 0 and distance < 6
-
-# get_coord: convert long (>= 6 and < 0) distance coordinates into in_bounds rose coordinates
-def get_coord(coord):
-	if in_bounds(coord):
-		return coord
-	else:
-		(petal,dist) = coord
-		
-		while dist >= 11:
-			dist -= 11
-			petal += 11
-
-		while dist < -11:
-			dist += 11
-			petal -= 11
-
-		while dist < 0:
-			petal -= 11
-			# petal -= (6 - dist)
-			dist += 11
-
-		if dist >= 6:
-			dist = 10 - dist
-			petal -= (5 - dist)
-
-		while petal < 0:
-			petal += 24
-
-		petal = petal % 24
-
-		return (petal,dist)
-
-# bound_coord: like get_coord, but lets distances go > 5 or < -5
-def bound_coord(coord):
-	if in_bounds(coord):
-		return coord
-	else:
-		(petal,dist) = coord
-		
-		if dist < 0 and dist > -6:
-			dist += 11
-			petal -= (6 - dist)
-
-		while petal < 0:
-			petal += 24
-
-		petal = petal % 24
-
-		return (petal,dist)
+# Convert s, [(p, d)] to [(s, p, d)]
+def meld_coords(s, coords):
+	return [(s,p,d) for p,d in coords]
 
 #
 # Directions
 #
-maxDir = 4
+
 
 # Get a random direction
 def randDir():
-	return randint(0,maxDir)
+	return randint(0, MAX_DIR)
 
 # Return the left direction
 def turn_left(dir):
-	return (maxDir + dir - 1) % maxDir
+	return (MAX_DIR + dir - 1) % MAX_DIR
 	
 # Return the right direction
 def turn_right(dir):
-	return (dir + 1) % maxDir
+	return (dir + 1) % MAX_DIR
 
 # Randomly turn left, straight, or right
 def turn_left_or_right(dir):
-	return (maxDir + dir + randint(-1,1) ) % maxDir
+	return (MAX_DIR + dir + randint(-1, 1)) % MAX_DIR
 
-#
-# Grouping Functions
-#
-
-def get_all_radial(dist):
-    return [(petal, dist) for petal in range(maxPetal)]
-
-def get_petal_sym(num,offset=0):
-	"""Return a symmetric list of petals + offset"""
-	sym_type = [1,2,3,4,6,8,12,24]
-	sym = sym_type[num % len(sym_type)]
-	return [((p+offset+maxPetal) % maxPetal) for p in range(0,24,sym)]
-
-def get_petal_shape(size,offset=0):
-	return [((p+offset+maxPetal) % maxPetal, (d+maxDistance) % maxDistance)
-		for (p,d) in get_petal_shape_fixed(size)]
-
-def get_petal_shape_fixed(size):
-	petals = []
-	for x in range(size+1):
-		for y in range(size+1):
-			petals.append((size-y,x-y))
-	return petals
-
-def get_fan_shape(size,offset=0):
-	return [(((p+offset+maxPetal) % maxPetal),d) for (p,d) in get_fan_shape_fixed(size)]
-
-def get_fan_shape_fixed(size):
-	petals = []
-	for p in range(size+1):
-		for c in get_fan_band_fixed(p):
-			petals.append(c)
-	return petals
-
-def get_fan_band(size, offset=0):
-	return [(((p+offset) % maxPetal),d) for (p,d) in get_fan_band_fixed(size)]
-
-def get_fan_band_fixed(size):
-	petals = []
-	for p in range(size+1):
-		petals.append((p,size))
-	return petals
 
 #
 # Distance Functions
@@ -210,16 +80,16 @@ def distance(coord1, coord2):
 
 # Pick a random color
 def randColor():
-	return randint(0,maxColor-1)
+	return randint(0, MAX_COLOR - 1)
 	
 # Returns a random color around a given color within a particular range
 # Function is good for selecting blues, for example
 def randColorRange(color, window):
-	return (maxColor + color + randint(-window,window)) % maxColor
+	return (MAX_COLOR + color + randint(-window, window)) % MAX_COLOR
 
 # Increase color by an amount (can be negative)
 def changeColor(color, amount):
-	return (maxColor + color + amount) % maxColor
+	return (MAX_COLOR + color + amount) % MAX_COLOR
 
 # Wrapper for gradient_wheel in which the intensity is 1.0 (full)
 def wheel(color):
@@ -228,8 +98,9 @@ def wheel(color):
 # Picks a color in which one rgb channel is off and the other two channels
 # revolve around a color wheel
 def gradient_wheel(color, intense):
-	saturation = sin(3.14 * datetime.datetime.today().second / 60) * 125
-	color = color % maxColor  # just in case color is out of bounds
+	saturation = 0
+	# saturation = sin(3.14 * datetime.datetime.today().second / 60) * 62
+	color = color % MAX_COLOR  # just in case color is out of bounds
 	channel = color // 256;
 	value = color % 256;
 
@@ -263,7 +134,7 @@ def gradient_wheel(color, intense):
 # Picks a color in which one rgb channel is ON and the other two channels
 # revolve around a color wheel
 def white_wheel(color, intense):
-	color = color % maxColor  # just in case color is out of bounds
+	color = color % MAX_COLOR  # just in case color is out of bounds
 	channel = color / 256;
 	value = color % 256;
 

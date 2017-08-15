@@ -1,31 +1,28 @@
-from random import random, randint, choice
-
 from HelperFunctions import*
-from rose import rose_in_direction
 
 class Spiro(object):
-	def __init__(self, rosemodel, color, r, life):
-		self.rose = rosemodel
-		self.r = r
+	def __init__(self, sunflower_model, color, s, life):
+		self.sunflower = sunflower_model
+		self.s = s
 		self.color = color
-		self.pos = get_rand_cell()
+		self.pos = self.sunflower.get_rand_cell()
 		self.dir = randDir()
 		self.life = life
 
 	def draw_spiro(self):
-		self.rose.set_cell(get_coord(self.pos), wheel(self.color), self.r)
-	
+		self.sunflower.set_cell(meld(self.s, self.pos), wheel(self.color))
+
 	def move_spiro(self):			
-		self.pos = rose_in_direction(self.pos, self.dir, 1)
+		self.pos = self.sunflower.petal_in_direction(self.pos, self.dir, 1)
 		if oneIn(20):
 			self.color = randColorRange(self.color, 100)
 		self.life -= 1
 		return self.life > 0
 
 class Mover(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "Mover"        
-		self.rose = rosemodel
+		self.sunflower = sunflower_model
 		self.color = randColor()
 		self.speed = 0.2
 		self.spiros = []
@@ -35,7 +32,7 @@ class Mover(object):
 		while (True):
 			
 			while len(self.spiros) < 9 or oneIn(10):
-				new_spiro = Spiro(self.rose, self.color, randRose(), randint(24,500))
+				new_spiro = Spiro(self.sunflower, self.color, self.sunflower.rand_sun(), randint(24, 500))
 				self.spiros.append(new_spiro)
 
 			for s in self.spiros:

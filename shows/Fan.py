@@ -1,11 +1,10 @@
-from random import random, randint, choice
-
+from sunflower import NUM_SUNFLOWERS
 from HelperFunctions import*
 	
 class Fan(object):
-	def __init__(self, rosemodel):
+	def __init__(self, sunflower_model):
 		self.name = "Fan"        
-		self.rose = rosemodel
+		self.sunflower = sunflower_model
 		self.speed = 0.5 + (randint(0,30) * 0.1)
 		self.size = 5
 		self.color = randColor()
@@ -15,12 +14,14 @@ class Fan(object):
 		self.clock = 0
 	
 	def draw_rings(self):
-		for r in range(maxRose):
-			for y in range(5,0,-1):
-				for x in get_petal_sym(self.syms[y]+r):
-					color = changeColor(self.color, ((y + r + self.clock) % self.color_grade) * self.color_inc)
-					intensity = 1.0 - (0.1 * ((y+r+self.clock) % 8))
-					self.rose.set_cells(get_fan_shape(y,x), gradient_wheel(color, intensity), r)
+		for s in range(NUM_SUNFLOWERS):
+			for d in range(self.sunflower.max_dist-1, 0, -1):
+				y = d % len(self.syms)
+				for x in self.sunflower.get_petal_sym(self.syms[y] + s):
+					color = changeColor(self.color, ((y + s + self.clock) % self.color_grade) * self.color_inc)
+					intensity = 1.0 - (0.1 * ((y + s + self.clock) % 8))
+					self.sunflower.set_cells(meld_coords(s, self.sunflower.get_fan_shape(d, x)),
+											 gradient_wheel(color, intensity))
 
 				if oneIn(10):
 					self.syms[y] = (self.syms[y] + 1) % 7
@@ -32,7 +33,7 @@ class Fan(object):
 
 		while (True):
 			
-			self.rose.set_all_cells((0,0,0))
+			self.sunflower.black_cells()
 			self.draw_rings()
 
 			# Change it up!
@@ -41,7 +42,7 @@ class Fan(object):
 			if oneIn(40):
 				self.color_grade = inc(self.color_grade,1,2,4)
 
-			self.color = inc(self.color,-1,0,maxColor)
+			self.color = inc(self.color, -1, 0, MAX_COLOR)
 			self.clock += 1
 
 			yield self.speed  	# random time set in init function
