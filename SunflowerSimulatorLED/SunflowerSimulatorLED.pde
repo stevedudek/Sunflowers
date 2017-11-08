@@ -16,7 +16,7 @@
     
 */
 
-byte NUM_SUNFLOWERS = 2;  // Number of Big Sunflowers
+byte NUM_SUNFLOWERS = 1;  // Number of Big Sunflowers
 int NUM_LEDS = 273;
 int SPIRAL_COUNT = 21;  // spiral_count in Tom's code
 int MAX_DIST = 14; // 17 with clipping
