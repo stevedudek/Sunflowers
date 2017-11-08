@@ -13,7 +13,7 @@ NUM_LEDS = 273
 
 ALLOWED_FAMILIES = [8, 13, 21, 34, 55]
 
-DEFAULT_FAMILY = 21  # Starting family
+DEFAULT_FAMILY = 34  # Starting family
 
 PROCESSING_FAMILY = 21  # Don't Change
 
@@ -39,6 +39,7 @@ class Sunflower(object):
         self.curr_frame = {}
         self.next_frame = {}
         self.init_frames()
+        self.brightness = 1.0
 
     def __repr__(self):
         return "Sunflowers(%s)" % (self.model, self.side)
@@ -56,8 +57,10 @@ class Sunflower(object):
         s, p, d = coord
         i = self.get_pixel((p,d))
         coord = (s,i)
+        (r,g,b) = color
+        adj_color = (r * self.brightness, g * self.brightness, b * self.brightness)
         if self.cell_exists(coord):
-            self.next_frame[coord] = color
+            self.next_frame[coord] = adj_color
 
     def set_cells(self, coords, color):
         for coord in coords:
@@ -142,6 +145,19 @@ class Sunflower(object):
         new_i = int(round(i * NUM_LEDS / float(denominator))) % self.num_spirals
         return new_i
 
+    ## The 2 functions below do not work; saving them for reference
+    # def get_pixel(self, coord):
+    #     """Calculate the pixel i from the coordinates depending on the family"""
+    #     p, d = coord
+    #     new_p = self.get_spiral_order(p)
+    #     return new_p + (d * self.num_spirals)
+    #
+    # def get_spiral_order(self, i):
+    #     """Convert the spiral i to a clockwise-ordered spiral"""
+    #     denominator = PROCESSING_FAMILY if self.num_spirals != 13 else self.num_spirals
+    #     new_i = int(round(i * NUM_LEDS / float(denominator))) % self.num_spirals
+    #     return new_i
+
     def set_random_family(self):
         """Set num_spirals to a random spiral family"""
         self.num_spirals = self.get_random_family()
@@ -149,6 +165,10 @@ class Sunflower(object):
 
     def get_random_family(self):
         return choice(ALLOWED_FAMILIES)
+
+    def set_max_brightness(self, brightness):
+        """Set the shows max brightness to 0.0 - 1.0"""
+        self.brightness = brightness
 
     def neighbors(self, coord):
         """Returns a list of the four neighboring tuples at a given coordinate"""
