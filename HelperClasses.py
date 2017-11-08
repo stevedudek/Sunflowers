@@ -35,7 +35,7 @@ class Faders(object):
 
     def fade_all(self):
         for f in self.fader_array:
-            # f.black_cell()
+            f.black_cell()
             self.fader_array.remove(f)
 
 class Fader(object):
