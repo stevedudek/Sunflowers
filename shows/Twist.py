@@ -9,7 +9,7 @@ class Twist(object):
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.ring = randint(0,5)
-		self.color_speed = randint(4,24)
+		self.color_speed = randint(10,24)
 		self.color_grade = randint(2,8)
 		self.clock = 0
 
@@ -27,7 +27,7 @@ class Twist(object):
 			for y in range(self.ring):
 				for x in range(self.sunflower.num_spirals):
 					color = changeColor(self.color, (x % self.color_grade) * self.color_inc)
-					intense = 1.0 - (0.2 * (y + s + ((self.clock + x) % self.color_speed)))
+					intense = (1.0 - (0.2 * (y + s + ((self.clock + x) % self.color_speed)))) * 0.2
 					self.sunflower.set_cell((s, (x+(2*s)) % self.sunflower.num_spirals, y), gradient_wheel(color, intense))
 
 

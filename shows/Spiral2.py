@@ -6,9 +6,9 @@ class Spiral2(object):
 	def __init__(self, sunflower_model):
 		self.name = "Spiral2"        
 		self.sunflower = sunflower_model
-		self.speed = (randint(0,10) + 1) / 0.5
+		self.speed = randint(1,5) * 0.1
 		self.color1 = randColor()
-		self.color2 = randColor()
+		self.color2 = changeColor(self.color1, 1000)
 		self.clock = 0
 		          
 	def next_frame(self):
@@ -24,8 +24,8 @@ class Spiral2(object):
 						new_d = (d + (2*s)) % self.sunflower.max_dist
 						self.sunflower.set_cell((s, p, new_d), gradient_wheel(color, intense))
 					
-			self.color1 = changeColor(self.color1, 2)
-			self.color2 = changeColor(self.color2, -8)
+			self.color1 = changeColor(self.color1, 1)
+			# self.color2 = changeColor(self.color2, -4)
 
 			self.clock += 1
 

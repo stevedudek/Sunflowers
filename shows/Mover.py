@@ -14,8 +14,7 @@ class Spiro(object):
 
 	def move_spiro(self):			
 		self.pos = self.sunflower.petal_in_direction(self.pos, self.dir, 1)
-		if oneIn(20):
-			self.color = randColorRange(self.color, 100)
+		self.color = randColorRange(self.color, 20)
 		self.life -= 1
 		return self.life > 0
 
@@ -32,7 +31,7 @@ class Mover(object):
 		while (True):
 			
 			while len(self.spiros) < 9 or oneIn(10):
-				new_spiro = Spiro(self.sunflower, self.color, self.sunflower.rand_sun(), randint(24, 500))
+				new_spiro = Spiro(self.sunflower, randColorRange(self.color, 200), self.sunflower.rand_sun(), randint(24, 500))
 				self.spiros.append(new_spiro)
 
 			for s in self.spiros:

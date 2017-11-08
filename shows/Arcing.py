@@ -29,9 +29,9 @@ class Arcing(object):
 		self.sunflower.set_random_family()
 		self.speed = 0.1 #0.2 + (randint(0,3) * 0.1)
 		self.color = randColor()
-		self.color_inc = randint(20,50)
-		self.color_speed = randint(1,4)
-		self.color_grade = randint(2,8)
+		self.color_inc = randint(40,80)
+		self.color_speed = randint(4,10)
+		self.color_grade = randint(8,20)
 		self.clock = 0
 		self.faders = Faders(sunflower_model)
 		self.arcs = []	# List that holds Arc objects
@@ -56,7 +56,7 @@ class Arcing(object):
 			self.move_arcs()
 
 			if len(self.arcs) < self.max_arcs:
-				new_arc = Arc(self.sunflower, randColorRange(self.color, 100),
+				new_arc = Arc(self.sunflower, randColorRange(self.color, 200),
 							  self.sunflower.rand_sun(), self.sunflower.rand_spiral(), self.sunflower.rand_dist(),
 							  plusORminus(), 1.0 / self.fade_amount)
 				self.arcs.append(new_arc)

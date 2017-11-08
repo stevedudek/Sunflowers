@@ -2,7 +2,7 @@ from HelperClasses import*
 from sunflower import NUM_SUNFLOWERS
 
 class Arc(object):
-	def __init__(self, sunflower_model, color, s, p, dir, fade=0.1):
+	def __init__(self, sunflower_model, color, s, p, dir, fade=0.25):
 		self.sunflower = sunflower_model
 		self.color = color
 		self.s = s
@@ -19,33 +19,33 @@ class Arc(object):
 
 	def move(self):
 		self.d += self.dir
-		return self.d >= 0 and self.d <= (self.sunflower.max_dist - 1) * 2
+		return self.d >= 0 and self.d <= (self.sunflower.max_dist - 1) * 4
 
 	
 class Flare(object):
 	def __init__(self, sunflower_model):
 		self.name = "Flare"        
 		self.sunflower = sunflower_model
-		self.speed = 0.1 + (randint(1,5) * 0.1)
-		self.color = randColor()
+		self.speed = randint(1,5) * 0.05
+		self.sun_color = randColor()
+		self.arc_color = randColor()
 		self.color_inc = randint(20,50)
-		self.color_speed = randint(1,4)
+		self.color_speed = randint(1,5) * 0.1
 		self.color_grade = randint(2,8)
-		self.bright = randint(0,2)
 		self.faders = Faders(sunflower_model)
 		self.arcs = []	# List that holds Arc objects 
-		self.max_arcs = 15
+		self.max_arcs = 12
 	
 	def draw_sun(self):
 		for s in range(NUM_SUNFLOWERS):
 			for y in range(self.sunflower.max_dist):
 				for x in range(self.sunflower.num_spirals):
-					color = changeColor(self.color, (x % self.color_grade) * ((s+1) * self.color_inc))
-					intense = 1.0 - (float(y) / self.sunflower.max_dist)
+					color = changeColor(self.sun_color, (x % self.color_grade) * ((s+1) * self.color_inc))
+					intense = 0.05 * (1.0 - (float(y) / self.sunflower.max_dist))
 					self.sunflower.set_cell((s,x,y), gradient_wheel(color, intense))
 
 	def draw_arcs(self):
-		for a in self.arcs:
+		for a in reversed(self.arcs):
 			self.faders.add_fader_obj(a.draw())
 
 	def move_arcs(self):
@@ -62,8 +62,8 @@ class Flare(object):
 			self.draw_arcs()
 			self.move_arcs()
 
-			if oneIn(10) and len(self.arcs) < self.max_arcs:
-				new_arc = Arc(self.sunflower, randColorRange(self.color, 200), self.sunflower.rand_sun(),
+			if len(self.arcs) < self.max_arcs:
+				new_arc = Arc(self.sunflower, randColorRange(self.arc_color, 300), self.sunflower.rand_sun(),
 							  randint(0, self.sunflower.num_spirals), plusORminus())
 				self.arcs.append(new_arc)
 
@@ -77,6 +77,7 @@ class Flare(object):
 
 
 			# Add a decrease color function
-			self.color = changeColor(self.color, 2)
+			self.sun_color = changeColor(self.sun_color, 5)
+			self.arc_color = changeColor(self.arc_color, -10)
 
 			yield self.speed  	# random time set in init function

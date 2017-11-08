@@ -27,9 +27,11 @@ class Branches(object):
 		self.name = "Branches"        
 		self.sunflower = sunflower_model
 		self.livebranches = []	# List that holds Branch objects
-		self.speed = 0.02
+		self.speed = 0.07
 		self.maincolor =  randColor()	# Main color of the show
 		self.maindir = randDir() # Random initial main direction
+		self.max_brightness = 0.5
+		self.sunflower.set_max_brightness(self.max_brightness)
 		          
 	def next_frame(self):
     	
@@ -38,7 +40,7 @@ class Branches(object):
 			# Check how many branches are in play
 			# If no branches, add one. If branches < 10, add more branches randomly
 			while len(self.livebranches) < 30 or oneIn(10):
-				newbranch = Branch(self.sunflower, randColorRange(self.maincolor, 30),  # color
+				newbranch = Branch(self.sunflower, randColorRange(self.maincolor, 300),  # color
 								   self.sunflower.rand_sun(),  # random sunflower
 					(randint(0, self.sunflower.num_spirals), 5),  # Starting position on outside ring
 					self.maindir,  # Random initial direction

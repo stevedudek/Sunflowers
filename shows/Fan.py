@@ -8,7 +8,7 @@ class Fan(object):
 		self.speed = 0.5 + (randint(0,30) * 0.1)
 		self.size = 5
 		self.color = randColor()
-		self.color_inc = randint(20,50)
+		self.color_inc = randint(200,500)
 		self.color_grade = randint(3,8)
 		self.syms = [0,0,0,0,0,0]
 		self.clock = 0
@@ -38,7 +38,7 @@ class Fan(object):
 
 			# Change it up!
 			if oneIn(4):
-				self.color_inc = inc(self.color_inc,1,20,50)
+				self.color_inc = inc(self.color_inc,10,200,500)
 			if oneIn(40):
 				self.color_grade = inc(self.color_grade,1,2,4)
 

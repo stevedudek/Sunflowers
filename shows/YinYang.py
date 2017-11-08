@@ -33,8 +33,8 @@ class YinYang(object):
 		self.clock = 0
 		self.faders = Faders(sunflower_model)
 		self.petals = []	# List that holds Petals objects
-		self.max_petals = 100
-		self.max_faders = 10000
+		self.max_petals = 10
+		self.max_faders = 1000
 	
 	def draw_petals(self):
 		for p in self.petals:
@@ -62,19 +62,17 @@ class YinYang(object):
 
 						direct = plusORminus()
 						fade = 1.0 / (randint(2, 6) + s)
-						color = self.color
+						color = randColorRange(self.color, 100)
 
-						new_petal = Petal(self.sunflower, color, s, p, randint(3, self.sunflower.max_dist), direct, life, fade)
+						new_petal = Petal(self.sunflower, changeColor(color, self.color_inc), s, p, randint(3, self.sunflower.max_dist), direct, life, fade)
 						self.petals.append(new_petal)
-						color = changeColor(color, self.color_inc)
 
 			self.faders.cycle_faders()
 			self.draw_petals()
 			self.move_petals()
 
 			# Change it up!
-			if oneIn(10):
-				self.color = randColorRange(self.color, 20)
+			self.color = randColorRange(self.color, 50)
 
 			self.clock += 1
 

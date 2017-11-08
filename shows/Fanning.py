@@ -52,7 +52,7 @@ class Fanning(object):
 			self.move_fans()
 
 			if len(self.fans) < self.max_fans:
-				new_fan = Fan(self.sunflower, randColorRange(self.color, 100),
+				new_fan = Fan(self.sunflower, randColorRange(self.color, 400),
 							  self.sunflower.rand_sun(), randint(0, self.sunflower.num_spirals), 0.3)
 				self.fans.append(new_fan)
 

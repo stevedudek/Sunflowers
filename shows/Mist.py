@@ -73,7 +73,7 @@ class Mist(object):
 		for a in self.arcs:
 			if not a.move():
 				new_petal = upORdown(a.get_petal(), 1, 0, self.sunflower.num_spirals - 1)
-				new_fan = Fan(self.sunflower, changeColor(a.get_color(),10), a.s, new_petal)
+				new_fan = Fan(self.sunflower, changeColor(a.get_color(), 40), a.s, new_petal)
 				self.fans.append(new_fan)
 				self.arcs.remove(a)
 
@@ -86,9 +86,9 @@ class Mist(object):
 			if not f.move():
 				if self.direct == 1:
 					tips = f.get_fan_tips()
-					new_arc = Arc(self.sunflower, changeColor(f.get_color(),20), f.s, tips[0], 1)
+					new_arc = Arc(self.sunflower, changeColor(f.get_color(), 60), f.s, tips[0], 1)
 					self.arcs.append(new_arc)
-					new_arc = Arc(self.sunflower, changeColor(f.get_color(),20), f.s, tips[1], -1)
+					new_arc = Arc(self.sunflower, changeColor(f.get_color(), 60), f.s, tips[1], -1)
 					self.arcs.append(new_arc)
 					if len(self.arcs) > self.max_arcs:
 						self.direct = -1	 
@@ -101,7 +101,7 @@ class Mist(object):
 			self.sunflower.black_cells()
 
 			while len(self.fans) < 6:
-				new_fan = Fan(self.sunflower, self.color, self.sunflower.rand_sun(), randint(0, self.sunflower.num_spirals))
+				new_fan = Fan(self.sunflower, randColorRange(self.color, 100), self.sunflower.rand_sun(), randint(0, self.sunflower.num_spirals))
 				self.fans.append(new_fan)
 				self.direct = 1
 

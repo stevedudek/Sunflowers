@@ -2,14 +2,15 @@ from HelperFunctions import*
 from sunflower import NUM_SUNFLOWERS
 
 class Band(object):
-	def __init__(self, sunflower_model, s, dist, dir):
+	def __init__(self, sunflower_model, s, dist, dir, color):
 		self.sunflower = sunflower_model
 		self.color = randColor()
 		self.s = s
 		self.p = 0
 		self.d = dist
 		self.dir = dir
-		self.grade = randint(5,20)
+		self.color = color
+		self.grade = randint(10,30)
 		self.fade = randint(10,20)
 		self.speed = randint(1,6)
 		self.time = 0
@@ -45,12 +46,13 @@ class Bands(object):
 		self.speed = 0.1
 		self.bands = []
 		self.clock = 0
+		self.color = randColor()
 	
 	def next_frame(self):
 		for s in range(NUM_SUNFLOWERS):
 			for d in range(self.sunflower.max_dist):
 				dir = ((d%2)*2)-1 	# -1 or 1
-				new_band = Band(self.sunflower, s, d, dir)
+				new_band = Band(self.sunflower, s, d, dir, self.color)
 				self.bands.append(new_band)
 
 		while (True):
@@ -58,6 +60,7 @@ class Bands(object):
 				b.draw()
 				b.move()
 
+			self.color = changeColor(self.color, 10)
 			self.clock += 1
 
 			yield self.speed

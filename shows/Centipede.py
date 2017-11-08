@@ -122,7 +122,7 @@ class Centipede (object):
             y = (y + self.sunflower.max_dist) % self.sunflower.max_dist
 
             for s in range(self.sunflower.num_sunflowers):
-                self.faders.add_fader(randColorRange(self.color, 50), meld(s, (x,y)), change=self.trail)
+                self.faders.add_fader(randColorRange(self.color, 250), meld(s, (x,y)), change=self.trail)
 
             self.faders.cycle_faders(refresh=False)
 

@@ -12,6 +12,8 @@ class CenterSpot(object):
 		self.color_grade = randint(2,8)
 		self.clock = 0
 		self.bright = randint(0,2)
+		self.max_brightness = 1.0
+		self.sunflower.set_max_brightness(self.max_brightness)
 	
 	def draw_ring(self):
 		for s in range(NUM_SUNFLOWERS):
@@ -25,7 +27,7 @@ class CenterSpot(object):
 		for s in range(NUM_SUNFLOWERS):
 			for y in range(self.color_speed):
 				for x in range(self.sunflower.num_spirals):
-					color = changeColor(self.color, ((x+s) % self.color_grade) * self.color_inc)
+					color = changeColor(self.color, ((x+s) % self.color_grade) * 5 * self.color_inc)
 					intense = 1.0 - (0.2 * ((y+s) + ((self.clock+x+s) % self.color_speed)))
 					self.sunflower.set_cell((s,x,y), gradient_wheel(color, intense))
 

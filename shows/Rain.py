@@ -51,7 +51,7 @@ class Rain(object):
 		while (True):
 			
 			if len(self.fans) < 3:
-				new_fan = Fan(self.sunflower, self.color, self.sunflower.rand_sun(), randint(0, self.sunflower.num_spirals))
+				new_fan = Fan(self.sunflower, randColorRange(self.color, 100), self.sunflower.rand_sun(), randint(0, self.sunflower.num_spirals))
 				self.fans.append(new_fan)
 				self.dir = 1
 

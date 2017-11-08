@@ -3,14 +3,15 @@ from sunflower import NUM_SUNFLOWERS
 
 class Radar(object):
     def __init__(self, sunflower_model):
-	self.name = "Radar"
-	self.sunflower = sunflower_model
-	self.faders = Faders(sunflower_model)
-	self.speed = 0.1
-	self.color = randColor()
-	self.trail = 1.0 / 24.0
-	self.symm = 1
-	self.clock = 0
+        self.name = "Radar"
+        self.sunflower = sunflower_model
+        self.faders = Faders(sunflower_model)
+        self.speed = 0.1
+        self.color = randColor()
+        self.color_gradient = randint(20, 50)
+        self.trail = 1.0 / 24.0
+        self.symm = 1
+        self.clock = 0
 		          
     def next_frame(self):
 
@@ -34,13 +35,13 @@ class Radar(object):
                     x = (ray/2 + s) % self.sunflower.num_spirals
                     y = 2*s % self.sunflower.max_dist
                     for sun in range(NUM_SUNFLOWERS):
-                        self.faders.add_fader(self.color, (sun, x, y), self.trail)
+                        self.faders.add_fader(changeColor(self.color, y * self.color_gradient), (sun, x, y), self.trail)
             else: #odd ray
                 for s in range((self.sunflower.max_dist/2) + 1):
                     x = (ray/2 + s + 1) % self.sunflower.num_spirals
                     y = 2*s+ 1 % self.sunflower.max_dist
                     for sun in range(NUM_SUNFLOWERS):
-                        self.faders.add_fader(self.color, (sun, x, y), self.trail)
+                        self.faders.add_fader(changeColor(self.color, y * self.color_gradient), (sun, x, y), self.trail)
 
 
             # Draw the Faders that were selected and collected just above.

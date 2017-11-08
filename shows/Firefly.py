@@ -37,7 +37,7 @@ class Firefly(object):
 		self.sunflower = sunflower_model
 		self.speed = 0.1
 		self.color = randColor()
-		self.color_inc = randint(20,50)
+		self.color_inc = randint(50,100)
 		self.faders = []	# List that holds Fader objects
 		self.max_faders = randint(15,150)
 		self.rotate_max = 0
@@ -82,5 +82,4 @@ class Firefly(object):
 			if oneIn(50):
 				self.color = changeColor(self.color, self.color_inc)
 
-			yield self.speed
 			yield self.speed

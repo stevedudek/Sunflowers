@@ -45,7 +45,7 @@ class WashingMachine(object):
 
 			self.sunflower.black_cells()	# Set background to black
 
-			for a in self.arcs:
+			for a in reversed(self.arcs):
 				if not a.move_and_draw(self.color):
 					self.arcs.remove(a)
 

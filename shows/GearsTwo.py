@@ -8,7 +8,6 @@ class GearsTwo(object):
 		self.speed = 0.5
 		self.color = randColor()
 		self.color_inc = randint(20,50)
-		self.color_grade = randint(3,8)
 		self.syms = [0,0,0,0,0,0]
 		self.clock = 0
 	
@@ -17,7 +16,7 @@ class GearsTwo(object):
 			for y in range(self.sunflower.max_dist):
 				offset = 0
 				for x in self.sunflower.get_petal_sym(self.syms[y % len(self.syms)] + s, offset):
-					color = changeColor(self.color, ((y + self.clock + (s * 2)) % self.color_grade) * self.color_inc)
+					color = changeColor(self.color, (((x % 3) * 2) + (y * 1.0) + self.clock + (s * 2)) * self.color_inc)
 					intensity = 1.0 - (0.075 * ((x + y + self.clock) % 8))
 					self.sunflower.set_cell((s,x,y), gradient_wheel(color, intensity))
 
@@ -37,8 +36,6 @@ class GearsTwo(object):
 			# Change it up!
 			if oneIn(4):
 				self.color_inc = inc(self.color_inc,1,20,50)
-			if oneIn(40):
-				self.color_grade = inc(self.color_grade,1,2,4)
 
 			self.color = inc(self.color, -1, 0, MAX_COLOR)
 			self.clock += 1

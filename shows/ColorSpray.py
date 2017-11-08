@@ -7,10 +7,12 @@ class ColorSpray(object):
 		self.speed = 0.5 + (randint(0,30) * 0.1)
 		self.size = 5
 		self.color = randColor()
-		self.color_inc = randint(40,100)
+		self.color_inc = randint(100,1000)
 		self.color_grade = randint(6,16)
 		self.syms = [0,0,0,0,0,0]
 		self.clock = 0
+		self.max_brightness = 1.0
+		self.sunflower.set_max_brightness(self.max_brightness)
 	
 	def draw_rings(self):
 		for d in range(self.sunflower.max_dist-1, 0, -1):
@@ -18,7 +20,7 @@ class ColorSpray(object):
 			for x in self.sunflower.get_petal_sym(self.syms[y]):
 				
 				color = changeColor(self.color,
-					((y + self.clock) % self.color_grade) * self.color_inc)
+					((y + self.clock) % self.color_grade) * 40 * self.color_inc)
 				intensity = 1.0 - (0.1 * ((y+self.clock) % 8))
 				self.sunflower.set_cells_all_suns(self.sunflower.get_fan_shape(d,x),
 					gradient_wheel(color, intensity))
@@ -35,8 +37,7 @@ class ColorSpray(object):
 			self.draw_rings()
 
 			# Change it up!
-			if oneIn(4):
-				self.color_inc = inc(self.color_inc,1,40,100)
+			self.color_inc = inc(self.color_inc,10,100,1000)
 			if oneIn(40):
 				self.color_grade = inc(self.color_grade,2,6,16)
 

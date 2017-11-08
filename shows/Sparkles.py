@@ -20,13 +20,11 @@ class Sparkles(object):
 		while (True):
 
 			if self.faders.num_faders() < self.spark_num:
-				for i in range(2):
-					self.faders.add_fader(randColorRange(self.color, 30),
-										  meld(self.sunflower.rand_sun(), self.sunflower.get_rand_cell()),
-										  change=randint(1,6) / 30.0, intense=0, growing=True)
+				self.faders.add_fader(randColorRange(self.color, 30),
+									  meld(self.sunflower.rand_sun(), self.sunflower.get_rand_cell()),
+									  change=randint(1,6) / 30.0, intense=0.1, growing=True)
 			self.faders.cycle_faders()
 			
-			if oneIn(100):
-				self.color = randColorRange(self.color, 30)
-			
+			self.color = randColorRange(self.color, 50)
+
 			yield self.speed  	# random time set in init function

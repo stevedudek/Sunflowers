@@ -5,12 +5,11 @@ class Gears(object):
 	def __init__(self, sunflower_model):
 		self.name = "Gears"        
 		self.sunflower = sunflower_model
-		self.speed = 0.5
+		self.speed = 0.2
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.density = randint(2,20)
-		self.color_speed = randint(4,24)
-		self.color_grade = randint(3,8)
+		self.color_grade = randint(10,20)
 		self.syms = [0,0,0,0,0,0]
 		self.clock = 0
 		self.bright = randint(0,2)
@@ -43,12 +42,10 @@ class Gears(object):
 			# Change it up!
 			if oneIn(40):
 				self.density = inc(self.density,1,2,20)
-			if oneIn(40):
-				self.color_speed = inc(self.color_speed, 1, 1, self.sunflower.num_spirals)
 			if oneIn(4):
 				self.color_inc = inc(self.color_inc,1,1,50)
 			if oneIn(100):
-				self.color_grade = inc(self.color_grade,1,3,8)
+				self.color_grade = inc(self.color_grade,1,10,20)
 
 			self.color = changeColor(self.color, 2)
 			self.clock += 1

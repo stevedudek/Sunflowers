@@ -9,11 +9,11 @@ class Ring(object):
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_speed = randint(1,4)
-		self.color_grade = randint(2,8)
+		self.color_grade = randint(5,10)
 		self.bright = randint(0,2)
 		self.faders = Faders(sunflower_model)
 		self.arcs = []	# List that holds Arc objects 
-		self.max_arcs = 18
+		self.max_arcs = 20
 	
 	def draw_ring(self):
 		for s in range(NUM_SUNFLOWERS):
@@ -43,7 +43,7 @@ class Ring(object):
 
 			if oneIn(10) or len(self.arcs) < self.max_arcs:
 				new_arc = Arc(self.sunflower, randColorRange(self.color, 200), self.sunflower.rand_sun(),
-							  randint(0, self.sunflower.num_spirals), plusORminus())
+							  randint(0, self.sunflower.num_spirals), plusORminus(), fade=0.25)
 				self.arcs.append(new_arc)
 
 			# Change it up!
@@ -52,7 +52,7 @@ class Ring(object):
 			if oneIn(4):
 				self.color_inc = (self.color_inc % 50) + 1
 			if oneIn(100):
-				self.color_grade = (self.color_grade % 7) + 2
+				self.color_grade = (self.color_grade % 10) + 2
 
 
 			self.color = changeColor(self.color, 2)

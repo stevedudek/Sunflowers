@@ -5,11 +5,11 @@ class Pulse(object):
 	def __init__(self, sunflower_model):
 		self.name = "Pulse"        
 		self.sunflower = sunflower_model
-		self.speed = 0.1 + (randint(0,20) * 0.1)
+		self.speed = 0.1 * randint(1,5)
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_speed = randint(1,4)
-		self.color_grade = randint(2,8)
+		self.color_grade = randint(4,8)
 		self.clock = 0
 		self.bright = randint(0,2)
 		          
@@ -20,7 +20,7 @@ class Pulse(object):
 				for y in range(self.sunflower.max_dist):
 					for x in range(self.sunflower.num_spirals):
 						color = (self.color + (y * self.color_inc * (s + 1))) % MAX_COLOR
-						intense = 1.0 - (0.1 * ((x + y + self.clock) % self.color_grade))
+						intense = 1.0 - (0.2 * (((x % 5) + self.clock) % self.color_grade))
 
 						if self.bright == 0:
 							self.sunflower.set_cell((s,x,y), white_wheel(color, intense))
@@ -35,7 +35,7 @@ class Pulse(object):
 			if oneIn(100):
 				self.color_grade += 1
 				if self.color_grade >= 8:
-					self.color_grade = 2
+					self.color_grade = 4
 
 			self.color = (self.color + self.color_speed) % MAX_COLOR
 			self.clock += 1

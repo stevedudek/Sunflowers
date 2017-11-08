@@ -16,7 +16,7 @@ class SimpleFlower(object):
 	def draw_flower(self):
 		for s in range(NUM_SUNFLOWERS):
 			for i, p in enumerate(self.sunflower.get_petal_sym(self.sym, self.clock % self.sunflower.num_spirals)):
-				color = changeColor(self.color, (i + self.clock + s) * self.color_grade)
+				color = changeColor(self.color, (((i % 2) * 400) + self.clock + s))
 				self.sunflower.set_cells(meld_coords(s, self.sunflower.get_petal_shape(self.size,p)), wheel(color))
 				## get_petal_shape() is borked
 	def next_frame(self):

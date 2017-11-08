@@ -16,7 +16,7 @@ class Trail(object):
 	def fade_trail(self):	
 		self.pos = self.sunflower.petal_in_direction(self.pos, self.dir, 1)
 		self.intense *= 0.9
-		return self.intense > 0.05		
+		return self.intense > 0
        		
 class Planet(object):
 	def __init__(self, sunflower_model, s, pos, color):
@@ -37,7 +37,7 @@ class Planet(object):
 	
 	def move_planet(self):
 		self.pos = self.sunflower.petal_in_direction(self.pos, self.dir, 1)
-		if oneIn(6):
+		if oneIn(4):
 			self.dir = turn_right(self.dir)
 		self.life -= 1
 		return self.life > 0
@@ -50,7 +50,7 @@ class Planet(object):
 			self.trails.append(new_trail)
 	
 	def fade_trails(self):
-		for t in reversed(self.trails):	# Plot last-in first
+		for t in self.trails:	# Plot last-in first
 			t.draw_trail()
 			if t.fade_trail() == False:
 				self.trails.remove(t)
@@ -61,7 +61,7 @@ class Circling(object):
 		self.name = "Circling"        
 		self.sunflower = sunflower_model
 		self.planets = []	# List that holds Planet objects
-		self.speed = 0.05
+		self.speed = 0.06
 		self.color = randColor()
 		          
 	def next_frame(self):
