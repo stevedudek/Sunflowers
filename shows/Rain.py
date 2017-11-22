@@ -5,7 +5,7 @@ class Rain(object):
 	def __init__(self, sunflower_model):
 		self.name = "Rain"        
 		self.sunflower = sunflower_model
-		self.speed = 0.2 + (randint(0,8) * 0.05)
+		self.speed = 0.1 + (randint(0,8) * 0.05)
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_speed = randint(1,4)
@@ -50,7 +50,7 @@ class Rain(object):
 
 		while (True):
 			
-			if len(self.fans) < 3:
+			if len(self.fans) < 4:
 				new_fan = Fan(self.sunflower, randColorRange(self.color, 100), self.sunflower.rand_sun(), randint(0, self.sunflower.num_spirals))
 				self.fans.append(new_fan)
 				self.dir = 1

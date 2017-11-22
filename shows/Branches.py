@@ -2,13 +2,13 @@ from HelperFunctions import*
 from sunflower import*
         		
 class Branch(object):
-	def __init__(self, sunflower_model, color, s, pos, dir, life):
+	def __init__(self, sunflower_model, color, s, pos, dir):
 		self.sunflower = sunflower_model
 		self.color = color
 		self.s = s
 		self.pos = pos
 		self.dir = dir
-		self.life = life	# How long the branch has been around
+		self.life = 0	# How long the branch has been around
 
 	def draw_branch(self):
 		self.sunflower.set_cell(meld(self.s, self.pos), gradient_wheel(self.color, 1.0 - (self.life / 20.0)))
@@ -30,8 +30,6 @@ class Branches(object):
 		self.speed = 0.07
 		self.maincolor =  randColor()	# Main color of the show
 		self.maindir = randDir() # Random initial main direction
-		self.max_brightness = 0.5
-		self.sunflower.set_max_brightness(self.max_brightness)
 		          
 	def next_frame(self):
     	
@@ -40,11 +38,11 @@ class Branches(object):
 			# Check how many branches are in play
 			# If no branches, add one. If branches < 10, add more branches randomly
 			while len(self.livebranches) < 30 or oneIn(10):
-				newbranch = Branch(self.sunflower, randColorRange(self.maincolor, 300),  # color
-								   self.sunflower.rand_sun(),  # random sunflower
-					(randint(0, self.sunflower.num_spirals), 5),  # Starting position on outside ring
-					self.maindir,  # Random initial direction
-					0)		# Life = 0 (new branch)
+				newbranch = Branch(sunflower_model=self.sunflower,
+								   color=randColorRange(self.maincolor, 300),
+								   s=self.sunflower.rand_sun(),
+								   pos=(self.sunflower.rand_spiral(), self.sunflower.get_max_dist()),
+								   dir=self.maindir)  # Random initial direction
 				self.livebranches.append(newbranch)
 				
 			for b in self.livebranches:
@@ -53,7 +51,7 @@ class Branches(object):
 				# Chance for branching
 				if oneIn(20):	# Create a fork
 					new_dir = turn_left_or_right(b.dir)
-					new_branch = Branch(self.sunflower, b.color, b.s, b.pos, new_dir, b.life)
+					new_branch = Branch(self.sunflower, b.color, b.s, b.pos, new_dir)
 					self.livebranches.append(new_branch)
 					
 				if b.move_branch() == False:	# branch has moved off the board

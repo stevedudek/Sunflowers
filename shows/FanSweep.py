@@ -8,30 +8,28 @@ class FanSweep(object):
 		self.speed = 0.2 + (randint(0,5) * 0.1)
 		self.color = randColor()
 		self.color_inc = randint(20,50)
-		self.color_change = randint(40,200)
+		self.color_change = randint(40, 200)
 		self.sym = randint(1,6)
 		self.min_size = int(self.sunflower.max_dist / 2)
 		self.size = randint(self.min_size, self.sunflower.max_dist)
 		self.clock = 0
-		self.max_brightness = 1,0
-		self.sunflower.set_max_brightness(self.max_brightness)
 	
 	def draw_flower(self):
 		for s in range(NUM_SUNFLOWERS):
-			for p in self.sunflower.get_petal_sym(self.sym, self.clock % self.sunflower.num_spirals):
-				self.sunflower.set_cells(meld_coords(s, self.sunflower.get_fan_shape(self.size,p)), wheel(self.color + (p * self.color_change / 10)))
+			for p in self.sunflower.get_petal_sym(self.sym, (self.clock % self.sunflower.num_spirals)):
+				self.sunflower.set_cells(meld_coords(s, self.sunflower.get_fan_shape(self.size, p+s)), wheel(self.color + (p * self.color_change / 10)))
 
 	def next_frame(self):
 		
 		while (True):
 			
-			# self.sunflower.set_all_cells((0,0,0))
+			self.sunflower.set_all_cells((0,0,0))
 			self.draw_flower()
 
 			# Change it up!
 			if oneIn(40):
 				self.sym = upORdown(self.sym, 1, 1, 5)
-			if oneIn(2):
+			if oneIn(10):
 				self.size = upORdown(self.size, 1, self.min_size, self.sunflower.max_dist)
 			if oneIn(20):
 				self.color_change = upORdown(self.color_change, 10, 40, 200)

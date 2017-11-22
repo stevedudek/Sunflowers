@@ -35,7 +35,7 @@ class Sunflower(object):
         self.num_spirals = family
         self.num_sunflowers = NUM_SUNFLOWERS
         self.max_dist = int(ceil(float(NUM_LEDS) / self.num_spirals))
-        self.cellmap = self.add_all_pixels()
+        self.cellmap = self.get_all_pixels()
         self.curr_frame = {}
         self.next_frame = {}
         self.init_frames()
@@ -57,9 +57,9 @@ class Sunflower(object):
         s, p, d = coord
         i = self.get_pixel((p,d))
         coord = (s,i)
-        (r,g,b) = color
-        adj_color = (r * self.brightness, g * self.brightness, b * self.brightness)
         if self.cell_exists(coord):
+            (r,g,b) = color
+            adj_color = (r * self.brightness, g * self.brightness, b * self.brightness)
             self.next_frame[coord] = adj_color
 
     def set_cells(self, coords, color):
@@ -93,9 +93,9 @@ class Sunflower(object):
         self.set_all_cells((0,0,0))
         self.go()
 
-    def go(self):
+    def go(self, fract=1):
         self.send_frame()
-        self.model.go()
+        self.model.go(fract)
         self.update_frame()
 
     def send_delay(self, delay):
@@ -119,16 +119,16 @@ class Sunflower(object):
             self.curr_frame[coord] = (0,0,0)
             self.next_frame[coord] = (0,0,0)
 
-    def add_all_pixels(self):
+    def get_all_pixels(self):
         """Return all valid (s,i) coordinates"""
         all_coords = [(s,i) for i in range(NUM_LEDS) for s in range(NUM_SUNFLOWERS)]
         return all_coords
 
-    def num_spirals(self):
-        return self.family
+    def get_num_spirals(self):
+        return self.num_spirals
 
-    def max_dist(self):
-        return ceil(float(self.family) / NUM_LEDS)
+    def get_max_dist(self):
+        return int(ceil(NUM_LEDS / float(self.num_spirals)))
 
     def is_on_board(self, coord):
         return self.get_pixel(coord) < NUM_LEDS

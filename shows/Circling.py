@@ -15,7 +15,7 @@ class Trail(object):
 	
 	def fade_trail(self):	
 		self.pos = self.sunflower.petal_in_direction(self.pos, self.dir, 1)
-		self.intense *= 0.9
+		self.intense -= 0.1
 		return self.intense > 0
        		
 class Planet(object):
@@ -27,12 +27,12 @@ class Planet(object):
 		self.dir = randDir()
 		self.life = 100
 		self.trails = []	# List that holds trails
+		self.max_trails = 100
 		
 	def draw_planet(self):
-		
 		self.fade_trails()
 		for c in self.sunflower.neighbors(self.pos):
-			self.draw_add_trail(self.color, 0.8, self.s, c)
+			self.draw_add_trail(self.color, 1, self.s, c)
 		self.draw_add_trail(self.color, 1, self.s, self.pos)
 	
 	def move_planet(self):
@@ -46,11 +46,12 @@ class Planet(object):
 		(p,d) = pos
 		if self.sunflower.is_on_board((p,d)):
 			self.sunflower.set_cell((s,p,d), gradient_wheel(color, intense))
-			new_trail = Trail(self.sunflower, color, intense, s, pos, self.dir)
-			self.trails.append(new_trail)
+			if len(self.trails) < self.max_trails:
+				new_trail = Trail(self.sunflower, color, intense, s, pos, self.dir)
+				self.trails.append(new_trail)
 	
 	def fade_trails(self):
-		for t in self.trails:	# Plot last-in first
+		for t in reversed(self.trails):	# Plot last-in first
 			t.draw_trail()
 			if t.fade_trail() == False:
 				self.trails.remove(t)
@@ -61,22 +62,20 @@ class Circling(object):
 		self.name = "Circling"        
 		self.sunflower = sunflower_model
 		self.planets = []	# List that holds Planet objects
-		self.speed = 0.06
+		self.speed = 0.1
 		self.color = randColor()
 		          
 	def next_frame(self):
-		
+
 		self.sunflower.clear()
 			
 		while (True):
-			
-			if len(self.planets) < 6 and oneIn(20):
-				for p in range(0, self.sunflower.num_spirals, 6):
-					new_planet = Planet(self.sunflower, self.sunflower.rand_sun(), self.sunflower.get_rand_cell(), self.color)
-					self.planets.append(new_planet)
-					self.color = changeColor(self.color, -100)
 
-			# self.sunflower.black_cells()
+			if len(self.planets) < 6 and oneIn(20):
+				new_planet = Planet(self.sunflower, self.sunflower.rand_sun(), self.sunflower.get_rand_cell(),
+									self.color)
+				self.planets.append(new_planet)
+				self.color = changeColor(self.color, -100)
 
 			for p in self.planets:
 				p.draw_planet()

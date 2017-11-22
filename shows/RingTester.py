@@ -12,7 +12,7 @@ class RingTester(object):
 		
 		while (True):
 			
-			self.sunflower.set_all_cells((0,0,0))
+			self.sunflower.black_cells()
 					
 			self.sunflower.set_cells_all_suns(self.sunflower.get_all_radial(self.clock % self.sunflower.max_dist),
 											  wheel(self.clock * 10 % MAX_COLOR))

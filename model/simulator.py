@@ -37,12 +37,12 @@ class SimulatorModel(object):
         for cell in cells:
             self.set_cell(cell, color)
 
-    def go(self):
+    def go(self, fract=1):
         "Send all of the buffered commands"
         self.send_start()
         for (cell, color) in self.dirty.items():
             (s, i) = cell
-            (r, g, b) = self.constrain_color(color)
+            (r, g, b) = self.constrain_color(color, fract)
             msg = "%s,%s,%s,%s,%s" % (s,i, r,g,b)
             
             if self.debug:
@@ -79,13 +79,13 @@ class SimulatorModel(object):
         self.sock.send(msg)
         self.sock.send('\n')
 
-    def constrain_color(self, color):
+    def constrain_color(self, color, fract=1):
         (r,g,b) = color
-        return (self.constrain(r), self.constrain(g), self.constrain(b))
+        return (self.constrain(r, fract), self.constrain(g, fract), self.constrain(b, fract))
 
-    def constrain(self, value):
+    def constrain(self, value, fract=1):
         "Keep color values between 0-255 and make whole numbers"
-        value = int(value)
+        value = int(value * fract)
         if value < 0: value = 0
         if value > 255: value = 255
         return value

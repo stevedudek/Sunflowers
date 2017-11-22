@@ -18,7 +18,7 @@ class SimpleFlower(object):
 			for i, p in enumerate(self.sunflower.get_petal_sym(self.sym, self.clock % self.sunflower.num_spirals)):
 				color = changeColor(self.color, (((i % 2) * 400) + self.clock + s))
 				self.sunflower.set_cells(meld_coords(s, self.sunflower.get_petal_shape(self.size,p)), wheel(color))
-				## get_petal_shape() is borked
+
 	def next_frame(self):
 		
 		while (True):
@@ -30,7 +30,7 @@ class SimpleFlower(object):
 			if oneIn(40):
 				self.sym = upORdown(self.sym, 1, 2, 5)
 			if oneIn(20):
-				self.size = upORdown(self.size, 1, 1, 5)
+				self.size = upORdown(self.size, 1, 1, 6)
 			if oneIn(40):
 				self.color_grade = inc(self.color_grade,1,0,8)
 

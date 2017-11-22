@@ -4,10 +4,10 @@ from HelperFunctions import*
 # Fader class and its collection: the Faders class
 #
 class Faders(object):
-    def __init__(self, sunflower_model):
+    def __init__(self, sunflower_model, max_faders=1000):
         self.sunflower = sunflower_model
         self.fader_array = []
-        self.max_faders = 1000
+        self.max_faders = max_faders
 
     def add_fader(self, color, pos, change=0.1, intense=1.0, growing=False):
         new_fader = Fader(self.sunflower, color, pos, change, intense, growing)
@@ -85,7 +85,7 @@ class Arc(object):
 
     def move(self):
         self.d += self.direct
-        return self.d >= 0 and self.d <= self.sunflower.max_dist - 2
+        return self.d > -1 and self.d <= self.sunflower.max_dist - 2
 
     def get_petal(self):
         return self.p
@@ -112,7 +112,7 @@ class Fan(object):
 
     def move(self):
         self.d += self.direct
-        return self.d <= self.sunflower.max_dist - 1
+        return self.d <= self.sunflower.max_dist
 
     def get_fan_tips(self):
         cells = self.sunflower.get_fan_band(self.sunflower.max_dist - 1, self.p)

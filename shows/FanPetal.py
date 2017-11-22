@@ -14,8 +14,6 @@ class FanPetal(object):
 		self.fan_size = randint(0, self.sunflower.max_dist - 1)
 		self.petal_size = randint(0, self.sunflower.max_dist - 1)
 		self.clock = 0
-		self.max_brightness = 1.0
-		self.sunflower.set_max_brightness(self.max_brightness)
 	
 	def draw_fan(self):
 		for s in range(NUM_SUNFLOWERS):

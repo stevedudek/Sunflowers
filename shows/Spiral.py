@@ -17,8 +17,8 @@ class Spiral(object):
 			for s in range(NUM_SUNFLOWERS):
 				for p in range(self.sunflower.num_spirals):
 					for d in range(self.sunflower.max_dist):
-						color = self.color1 if (p + self.clock) % 2 else self.color2
-						intense = (sin(pi * ((d + self.clock) % self.sunflower.max_dist) / (self.sunflower.max_dist + 1)) + 1) / 2
+						color = self.color1 if (p + (self.clock/5)) % 2 else self.color2
+						intense = abs(sin(pi * ((d + s + self.clock) % self.sunflower.max_dist) / (self.sunflower.max_dist + 1)))
 						self.sunflower.set_cell((s, (p+s) % self.sunflower.num_spirals, (d + s) % self.sunflower.max_dist), gradient_wheel(color, intense))
 					
 			self.color1 = changeColor(self.color1, 1)

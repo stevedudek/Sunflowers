@@ -2,10 +2,10 @@
 
 # You can change this if you have longer or shorter strings.
 pixels=144
-swap=123456
+swap=1234
 
 # This sets how many strings are attached.
-stripsattached=6
+stripsattached=4
 
 artnet_universe=1
 artnet_channel=1
@@ -18,11 +18,9 @@ strip3=ws2801
 order3=grb
 strip4=ws2801
 order4=grb
-strip5=ws2801
-order5=grb
-strip6=ws2801
-order6=grb
 
 ether=10.1.0.20
 netmask=255.255.255.0
 gateway=10.1.0.1
+
+ws28delay=5

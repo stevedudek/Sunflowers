@@ -181,8 +181,18 @@ class ShowRunner(threading.Thread):
                 if delay:
                     adj_delay = delay * SPEED_MULT
 
+                    # Fade in & fade out shows
+                    fade_time = 3  # In seconds. Adjust fade_time here
+
+                    if self.show_runtime < fade_time:
+                        fract = float(self.show_runtime) / fade_time
+                    elif self.show_runtime > (self.max_show_time - fade_time):
+                        fract = float(self.max_show_time - self.show_runtime) / fade_time
+                    else:
+                        fract = 1   # default: no fade
+
                     # Send all the next_frame data - don't change lights
-                    self.model.go()
+                    self.model.go(fract)
                     self.model.send_delay(adj_delay)
 
                     time.sleep(adj_delay)  # The only delay!

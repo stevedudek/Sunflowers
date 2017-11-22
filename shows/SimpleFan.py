@@ -19,7 +19,6 @@ class SimpleFan(object):
 			for i, p in enumerate(self.sunflower.get_petal_sym(self.sym + s, self.clock % self.sunflower.num_spirals)):
 				color = changeColor(self.color, ((i * 30) + s + self.clock))
 				self.sunflower.set_cells(meld_coords(s, self.sunflower.get_fan_shape(self.size, p)), wheel(color))
-				## get_fan_shape() is borked
 
 	def next_frame(self):
 		
@@ -30,11 +29,11 @@ class SimpleFan(object):
 
 			# Change it up!
 			if oneIn(40):
-				self.sym = upORdown(self.sym, 1, 1, self.sunflower.max_dist)
+				self.sym = upORdown(self.sym, 1, 1, 6)
 			if oneIn(4):
 				self.size = upORdown(self.size, 1, self.min_size, self.sunflower.max_dist)
 			if oneIn(40):
-				self.color_grade = inc(self.color_grade,1,10,20)
+				self.color_grade = upORdown(self.color_grade, 1, 10, 20)
 
 			self.color = inc(self.color, -1, 0, MAX_COLOR)
 			self.clock += 1

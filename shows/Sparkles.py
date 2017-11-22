@@ -9,7 +9,7 @@ class Sparkles(object):
 		self.speed = 0.2
 		self.color = randColor()
 		self.sparkle_perc = 10
-		self.spark_num = 3 * NUM_LEDS * self.sparkle_perc / 100
+		self.spark_num = self.sunflower.num_spirals * NUM_LEDS * self.sparkle_perc / 100
 		self.age = 0.1
 		self.clock = 0
 	

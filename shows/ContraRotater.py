@@ -5,14 +5,12 @@ class ContraRotater(object):
 	def __init__(self, sunflower_model):
 		self.name = "ContraRotater"        
 		self.sunflower = sunflower_model
-		self.faders = Faders(self.sunflower)
+		self.faders = Faders(self.sunflower, max_faders=3000)
 		self.speed = 0.3
 		self.color = randColor()
-		self.trail = 0.2
+		self.trail = 0.5
 		self.symm = 1
 		self.clock = 0
-		self.max_brightness = 0.8
-		self.sunflower.set_max_brightness(self.max_brightness)
 		          
 	def next_frame(self):
 		
@@ -24,27 +22,18 @@ class ContraRotater(object):
 			for s in range(NUM_SUNFLOWERS):
 				for p in range(self.sunflower.num_spirals):
 					for d in range(self.sunflower.max_dist):
-						if (p+s) % (self.sunflower.num_spirals / (self.symm + s)) == self.clock % (self.sunflower.num_spirals / self.symm):
-							if (d+s) % 2 == 0:
-								new_p = self.sunflower.num_spirals - p - 1
-								color = self.color
-							else:
-								new_p = p
-								color = changeColor(self.color, (self.clock * 10))
-
-							self.faders.add_fader(color, (s, new_p, d), change=self.trail)
+						if p % (self.sunflower.num_spirals / self.symm) == self.clock % (self.sunflower.num_spirals / self.symm):
+							self.faders.add_fader(self.color, (s, self.sunflower.num_spirals - p - 1, d), change=self.trail)
+							self.faders.add_fader(changeColor(self.color, (self.clock * 10)), (s, p, d), change=self.trail)
 			
 			self.faders.cycle_faders()	# Draw the Faders
-			
+
 			# Change the colors and symmetry
 			
 			self.color = randColorRange(self.color, 5)
 			
-			if oneIn(20):
-				self.trail = inc(self.trail, 0.1, 0.2, 0.5)
-
 			if oneIn(50):
-				self.symm = inc(self.symm, 1, 1, 7)
+				self.symm = upORdown(self.symm, 1, 1, 4)
 
 			self.clock += 1
 
