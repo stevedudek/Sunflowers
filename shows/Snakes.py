@@ -66,7 +66,7 @@ class Snake(object):
 		self.alive = True
 
 	def draw_snake(self):
-		self.sunflower.set_cell(self.pos, gradient_wheel(self.color, (100 - self.pathlength) / 100.0))
+		self.sunflower.set_cell(self.pos, gradient_wheel(self.color, (200 - self.pathlength) / 200.0))
 		self.pathlength += 1
 
 	def is_alive(self):
@@ -99,7 +99,7 @@ class Snakes(object):
 			
 			# Check how many snakes are in play
 			# If no snakes, add one. Otherwise if snakes < 4, add more snakes randomly
-			while self.count_snakes() < 3:
+			while self.count_snakes() < 6:
 				start_pos = self.snakemap.pick_open_cell()
 				if start_pos:	# Found a valid starting position
 					self.nextSnakeID += 1

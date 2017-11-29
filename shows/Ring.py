@@ -5,7 +5,7 @@ class Ring(object):
 	def __init__(self, sunflower_model):
 		self.name = "Ring"        
 		self.sunflower = sunflower_model
-		self.speed = 0.1
+		self.speed = 0.05
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_speed = randint(1,4)
@@ -48,8 +48,8 @@ class Ring(object):
 				self.arcs.append(new_arc)
 
 			# Change it up!
-			if oneIn(4):
-				self.color_inc = upORdown(self.color_inc, 2, 20, 50)
+			if oneIn(10):
+				self.color_inc = upORdown(self.color_inc, 1, 20, 50)
 			if oneIn(100):
 				self.color_grade = upORdown(self.color_grade, 1, 5, 10)
 

@@ -27,7 +27,7 @@ class Branches(object):
 		self.name = "Branches"        
 		self.sunflower = sunflower_model
 		self.livebranches = []	# List that holds Branch objects
-		self.speed = 0.07
+		self.speed = 0.1
 		self.maincolor =  randColor()	# Main color of the show
 		self.maindir = randDir() # Random initial main direction
 		          
@@ -41,7 +41,7 @@ class Branches(object):
 				newbranch = Branch(sunflower_model=self.sunflower,
 								   color=randColorRange(self.maincolor, 300),
 								   s=self.sunflower.rand_sun(),
-								   pos=(self.sunflower.rand_spiral(), self.sunflower.get_max_dist()),
+								   pos=(self.sunflower.rand_spiral(), self.sunflower.get_max_dist() - 1),
 								   dir=self.maindir)  # Random initial direction
 				self.livebranches.append(newbranch)
 				

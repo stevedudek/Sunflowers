@@ -5,7 +5,7 @@ class Gears(object):
 	def __init__(self, sunflower_model):
 		self.name = "Gears"        
 		self.sunflower = sunflower_model
-		self.speed = 0.2
+		self.speed = 0.05
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.density = randint(2,20)

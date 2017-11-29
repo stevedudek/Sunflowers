@@ -49,11 +49,12 @@ class Bands(object):
 		self.color = randColor()
 	
 	def next_frame(self):
-		for s in range(NUM_SUNFLOWERS):
-			for d in range(self.sunflower.max_dist):
-				dir = ((d%2)*2)-1 	# -1 or 1
-				new_band = Band(self.sunflower, s, d, dir, self.color)
-				self.bands.append(new_band)
+		if len(self.bands) < 5:
+			for s in range(NUM_SUNFLOWERS):
+				for d in range(self.sunflower.max_dist):
+					dir = ((d%2)*2)-1 	# -1 or 1
+					new_band = Band(self.sunflower, s, d, dir, self.color)
+					self.bands.append(new_band)
 
 		while (True):
 			for b in self.bands:

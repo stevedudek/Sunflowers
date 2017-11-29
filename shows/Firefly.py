@@ -35,7 +35,7 @@ class Firefly(object):
 	def __init__(self, sunflower_model):
 		self.name = "Firefly"        
 		self.sunflower = sunflower_model
-		self.speed = 0.2
+		self.speed = 0.1
 		self.color = randColor()
 		self.color_inc = randint(50,100)
 		self.faders = []	# List that holds Fader objects

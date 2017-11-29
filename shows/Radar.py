@@ -9,7 +9,7 @@ class Radar(object):
         self.speed = 0.1
         self.color = randColor()
         self.color_gradient = randint(20, 50)
-        self.trail = 1.0 / 24.0
+        self.trail = 1.5 / self.sunflower.num_spirals
         self.symm = 1
         self.clock = 0
 		          

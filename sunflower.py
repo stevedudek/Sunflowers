@@ -6,7 +6,7 @@ Coordinates: (s,i) = (sunflower, pixel)  = (0-3, 0-72)
 """
 
 from random import choice, randint
-from math import ceil
+from math import floor, ceil
 
 NUM_SUNFLOWERS = 2
 NUM_LEDS = 273
@@ -34,7 +34,7 @@ class Sunflower(object):
         self.model = model
         self.num_spirals = family
         self.num_sunflowers = NUM_SUNFLOWERS
-        self.max_dist = int(ceil(float(NUM_LEDS) / self.num_spirals))
+        self.max_dist = self.get_max_dist()
         self.cellmap = self.get_all_pixels()
         self.curr_frame = {}
         self.next_frame = {}
@@ -59,6 +59,13 @@ class Sunflower(object):
         coord = (s,i)
         if self.cell_exists(coord):
             (r,g,b) = color
+            adj_color = (r * self.brightness, g * self.brightness, b * self.brightness)
+            self.next_frame[coord] = adj_color
+
+    def set_pixel(self, coord, color):
+        """coord is (s, i)"""
+        if self.cell_exists(coord):
+            (r, g, b) = color
             adj_color = (r * self.brightness, g * self.brightness, b * self.brightness)
             self.next_frame[coord] = adj_color
 
@@ -137,15 +144,15 @@ class Sunflower(object):
         """Calculate the pixel i from the coordinates depending on the family"""
         p, d = coord
         new_p = self.get_spiral_order(p)
-        return new_p + (d * self.num_spirals)
+        pixel = new_p + (d * self.num_spirals)
+        return pixel
 
-    def get_spiral_order(self, i):
-        """Convert the spiral i to a clockwise-ordered spiral"""
-        denominator = PROCESSING_FAMILY if self.num_spirals != 13 else self.num_spirals
-        new_i = int(round(i * NUM_LEDS / float(denominator))) % self.num_spirals
-        return new_i
+    def get_spiral_order(self, p):
+        """Convert the spiral p to a clockwise-ordered spiral"""
+        FAMILY_DICT = { 8:55, 13:13, 21:21, 34:21, 55:13 }
+        new_p = (15 + int(round(p * NUM_LEDS / float(FAMILY_DICT[self.num_spirals])))) % self.num_spirals
+        return new_p
 
-    ## The 2 functions below do not work; saving them for reference
     # def get_pixel(self, coord):
     #     """Calculate the pixel i from the coordinates depending on the family"""
     #     p, d = coord
@@ -158,12 +165,18 @@ class Sunflower(object):
     #     new_i = int(round(i * NUM_LEDS / float(denominator))) % self.num_spirals
     #     return new_i
 
+    def set_family(self, family):
+        """Set num_spirals to a family"""
+        if family in ALLOWED_FAMILIES:
+            self.num_spirals = family
+
     def set_random_family(self):
         """Set num_spirals to a random spiral family"""
         self.num_spirals = self.get_random_family()
-        self.max_dist = int(ceil(float(NUM_LEDS) / self.num_spirals))
+        self.max_dist = self.get_max_dist()
 
     def get_random_family(self):
+        """Pick a random spiral family"""
         return choice(ALLOWED_FAMILIES)
 
     def set_max_brightness(self, brightness):
@@ -176,35 +189,6 @@ class Sunflower(object):
 
         (x, y) = coord
         return [(x + dx, y + dy) for dx, dy in _lookup]
-
-
-        ###
-        # Attempt below to find neighboring spiral families - failed
-        ###
-
-        # families = [self.num_spirals, self.get_next_family(), -self.num_spirals, -self.get_next_family()]
-        # return [self.get_neighbor(coord, family) for family in families]
-
-    # def get_neighbor(self, coord, family):
-    #     """
-    #     Get the family's neighboring coordinate
-    #     A family can be + or -
-    #         1. Convert coord to i
-    #         2. Adjust i
-    #         3. Convert i back to coord
-    #     """
-    #     p, d = coord
-    #     i = p + (d * self.num_spirals)
-    #     i += family
-    #     p = i % self.num_spirals
-    #     d = i // self.num_spirals
-    #     p = self.get_spiral_order(p)    # P needs adjusting here! Not working well
-    #
-    #     return (p ,d)
-
-    # def get_next_family(self):
-    #     """Return the next Fibonacci spiral series from the current spiral family"""
-    #     return NEAREST_FAMILY[self.num_spirals]
 
     def petal_in_line(self, coord, direction, distance=0):
         """
@@ -234,12 +218,6 @@ class Sunflower(object):
         (dx, dy) = _lookup[(direction % len(_lookup))]
 
         return (x + dx, y + dy)
-
-        ###
-        # Attempt here to have y motion direct on to another spiral family - not working
-        ###
-        # families = [self.num_spirals, self.get_next_family(), -self.num_spirals, -self.get_next_family()]
-        # return self.get_neighbor(coord, families[direction % 4])  # prevent index errors
 
     #
     # Common random functions
@@ -302,4 +280,4 @@ class Sunflower(object):
         return [(((p + offset) % self.num_spirals), d) for (p, d) in self.get_fan_band_fixed(size)]
 
     def get_fan_band_fixed(self, size):
-        return [(p, size) for p in range(size)]
+        return [(p, size-1) for p in range(size)]

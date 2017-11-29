@@ -5,7 +5,7 @@ class SimpleFan(object):
 	def __init__(self, sunflower_model):
 		self.name = "SimpleFan"        
 		self.sunflower = sunflower_model
-		self.speed = 0.2 + (randint(0,5) * 0.1)
+		self.speed = 0.05
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_grade = randint(10,20)

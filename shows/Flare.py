@@ -25,7 +25,7 @@ class Flare(object):
 	def __init__(self, sunflower_model):
 		self.name = "Flare"        
 		self.sunflower = sunflower_model
-		self.speed = randint(1,5) * 0.05
+		self.speed = 0.05
 		self.sun_color = randColor()
 		self.arc_color = randColor()
 		self.color_inc = randint(20,50)

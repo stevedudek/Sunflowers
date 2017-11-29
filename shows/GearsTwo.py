@@ -5,7 +5,7 @@ class GearsTwo(object):
 	def __init__(self, sunflower_model):
 		self.name = "GearsTwo"        
 		self.sunflower = sunflower_model
-		self.speed = 1
+		self.speed = 0.05
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.syms = [0,0,0]
@@ -20,7 +20,7 @@ class GearsTwo(object):
 					intensity = 1.0 - (0.05 * ((x + y + (s * 5) + self.clock) % 20))
 					self.sunflower.set_cell((s,x,y), gradient_wheel(color, intensity))
 
-				if oneIn(10):
+				if oneIn(100):
 					self.syms[y % len(self.syms)] = upORdown(self.syms[y % len(self.syms)], 1, 2, 6)
 
 	def next_frame(self):

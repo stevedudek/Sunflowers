@@ -23,7 +23,7 @@ class Fanning(object):
 	def __init__(self, sunflower_model):
 		self.name = "Fanning"        
 		self.sunflower = sunflower_model
-		self.speed = 0.2 + (randint(0,3) * 0.1)
+		self.speed = randint(1,5) * 0.1
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_speed = randint(1,4)

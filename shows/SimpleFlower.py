@@ -5,7 +5,7 @@ class SimpleFlower(object):
 	def __init__(self, sunflower_model):
 		self.name = "SimpleFlower"        
 		self.sunflower = sunflower_model
-		self.speed = 0.1
+		self.speed = 0.05
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_grade = randint(0,3)
@@ -16,7 +16,7 @@ class SimpleFlower(object):
 	def draw_flower(self):
 		for s in range(NUM_SUNFLOWERS):
 			for i, p in enumerate(self.sunflower.get_petal_sym(self.sym, self.clock % self.sunflower.num_spirals)):
-				color = changeColor(self.color, (((i % 2) * 400) + self.clock + s))
+				color = changeColor(self.color, (((i % 2) * 100) + s))
 				self.sunflower.set_cells(meld_coords(s, self.sunflower.get_petal_shape(self.size,p)), wheel(color))
 
 	def next_frame(self):

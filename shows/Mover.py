@@ -24,7 +24,7 @@ class Mover(object):
 		self.name = "Mover"        
 		self.sunflower = sunflower_model
 		self.color = randColor()
-		self.speed = 0.2
+		self.speed = 0.05
 		self.spiros = []
 		self.faders = Faders(sunflower_model)
 		          

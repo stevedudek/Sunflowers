@@ -7,7 +7,7 @@
   1. Simulator: draws sunflower shape on the monitor
   2. Lighter: sends data to the lights
   
-  11/20/17 
+  11/27/17 
   
   Built on glorious Rose + Triangle Simulator
   
@@ -23,7 +23,7 @@
 byte NUM_SUNFLOWERS = 2;  // Number of Big Sunflowers
 int NUM_LEDS = 273;
 int SPIRAL_COUNT = 21;  // spiral_count in Tom's code
-int MAX_DIST = 14; // 17 with clipping
+int MAX_DIST = 14;
 int NUM_PETALS = SPIRAL_COUNT * MAX_DIST;
 
 //
@@ -74,9 +74,9 @@ Strip[] strip_array = new Strip[NUM_SUNFLOWERS * 2];
 boolean TILING = true;  // Tiling!
 byte[] big_x = { 1,2,3,2 };
 byte[] big_y = { 1,1,1,2 };
-int DRAW_LABELS = 2;  // enumerated type: 0=(p,d) label, 1=(strip,pixel), 2=labels off
+int DRAW_LABELS = 0;  // enumerated type: 0=(p,d) label, 1=(strip,pixel), 2=labels off
 boolean TOP_UP = true;  // Whether to draw sunflower as concave or convex
-int BRIGHTNESS = 100;  // A percentage
+int BRIGHTNESS = 80;  // A percentage
 int COLOR_STATE = 0;  // no enum types in processing. Messy
 
 // Color buffers: [s][i][r,g,b]
@@ -86,7 +86,7 @@ short[][][] next_buffer = new short[NUM_SUNFLOWERS][NUM_LEDS][3];
 short[][][] morph_buffer = new short[NUM_SUNFLOWERS][NUM_LEDS][3];
 
 // Calculated pixel constants for simulator display
-boolean UPDATE_VISUALIZER = true;  // turn false for LED-only updates
+boolean UPDATE_VISUALIZER = false;  // turn false for LED-only updates
 int SPIRAL_SIZE = 500;  // This is the value to change for Screen Size
 int CONTROL_HEIGHT = 50; // Height on the bottom control bar
 int SCREEN_WIDTH = SPIRAL_SIZE * big_x[NUM_SUNFLOWERS-1];
@@ -103,14 +103,43 @@ SunForm sunGrid;  // Grid model of Sunflower holds all the Petal objects
 
 // Timing variables needed to control regular morphing
 int delay_time = 10000;  // delay time length in milliseconds (dummy initial value)
-int start_time = millis();  // start time point (in absolute time)
-int last_time = start_time;
+long start_time = millis();  // start time point (in absolute time)
+long last_time = start_time;
+
+// Brute-force arrays of strip and pixel for each i
+byte[] SPIRAL_ORDER = {
+  12, 20, 7, 15, 2, 10, 18, 5, 13, 0, 8, 16, 3, 11, 19, 6, 14, 1, 9, 17, 4 };
+
+byte[] led_lookup_strip = {
+  1,0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1,1,0,1,0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,
+  1,0,1,1,0,1,0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1,1,0,1,0,1,1,0,1,0,0,1,0,1,1,
+  0,1,0,0,1,0,1,1,0,1,0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1,1,0,1,0,1,1,0,1,0,0,
+  1,0,1,1,0,1,0,0,1,0,1,1,0,1,0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1,0,0,1,0,1,1,
+  0,1,0,0,1,0,1,1,0,1,0,0,1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1,0,0,
+  1,0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,1,
+  0,1,0,0,1,0,1,1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1,0,0,1,0,1,1,0,1,0,0,1,0,1,1,0,
+  1,0,0,1,0,1,0,0 };
+  
+int[] led_lookup_pixel = {
+  80,94,0,108,66,53,121,13,81,93,26,134,40,54,120,12,107,67,27,135,39,79,95,
+  1,109,65,52,122,14,82,92,25,133,41,55,119,11,106,68,28,136,38,78,96,2,110,
+  64,51,123,15,83,91,24,132,42,56,118,10,105,69,29,137,37,77,97,3,111,63,50,
+  124,16,84,90,23,131,43,57,117,9,104,70,30,138,36,76,98,4,112,62,49,125,17,
+  85,89,22,130,44,58,116,8,103,71,31,139,35,75,99,5,113,61,48,126,18,86,88,
+  21,129,45,59,115,7,102,72,32,140,34,74,100,6,114,60,47,127,19,87,87,20,128,
+  46,60,114,6,101,73,33,141,33,73,101,7,115,59,46,128,20,88,86,19,127,47,61,
+  113,5,100,74,34,140,32,72,102,8,116,58,45,129,21,89,85,18,126,48,62,112,4,
+  99,75,35,139,31,71,103,9,117,57,44,130,22,90,84,17,125,49,63,111,3,98,76,
+  36,138,30,70,104,10,118,56,43,131,23,91,83,16,124,50,64,110,2,97,77,37,137,
+  29,69,105,11,119,55,42,132,24,92,82,15,123,51,65,109,1,96,78,38,136,28,68,
+  106,12,120,54,41,133,25,93,81,14,122,52,66,108,0,95,79,39,135,27 };
 
 //
 // Setup
 //
-// Calculate just once the screen position of all petals,
-// the conversion of (s,p,d) petals coordinates to (strip, pixel) LEDs   
+// Calculate just once:
+// 1. The screen position of all petals, indexed by (i),
+// 2. The conversion of (s,p,d) petals coordinates to (strip, pixel) LEDs   
 // 
 void setup() {
   
@@ -159,7 +188,7 @@ void mouseClicked() {
   if (mouseX > 20 && mouseX < 40 && mouseY > SCREEN_HEIGHT-46 && mouseY < SCREEN_HEIGHT-21) {
     
     // Draw labels button
-    DRAW_LABELS = (DRAW_LABELS + 1) % 3;  // 0-1-2 state
+    DRAW_LABELS = (DRAW_LABELS + 1) % 4;  // 0-1-2 state
   
   }  else if (mouseX > 20 && mouseX < 40 && mouseY > SCREEN_HEIGHT-28 && mouseY < SCREEN_HEIGHT-13) {
     
@@ -280,9 +309,7 @@ void drawCheckbox(int x, int y, int size, color fill, boolean checked) {
 }
 
 //
-// SunForm class
-//
-// holds all the petals as a [s][i] array of Petal objects
+// SunForm class - holds all the petals as a [s][i] array of Petal objects
 //
 class SunForm {
   Petal[][] petals;  // (s,i)
@@ -341,7 +368,7 @@ class SunForm {
   
   void drawLabels() {
     // Draw all the numbered labels
-    if (DRAW_LABELS == 2) {  // 2 = No Label
+    if (DRAW_LABELS == 4) {  // 4 = No Label
       return;
     }
     for (byte s = 0; s < NUM_SUNFLOWERS; s++) {
@@ -375,14 +402,14 @@ class Petal {
   
   Petal(byte s, int i) {
     this.s = s;
-    this.p = get_spiral_order(i % 21); // spiral_order[i % 21];  //  Re-order the spiral arms here
+    this.p = get_spiral_order(i % 21); //  Re-order the spiral arms here
     this.d = int(i / 21);
     this.petal = i;
     this.xy = calc_xy(this.s, this.petal);
     this.rtheta = calc_rtheta(this.s, this.petal);
     //this.angle = (  float(this.petal+1) * golden_angle  ) + ( PI / 2);
-    this.strip_led = calc_led(this.s, p, this.d);
-    this.p_d_id = get_p_d_id(p, this.d);
+    this.strip_led = calc_led(this.s, this.petal);
+    this.p_d_id = get_p_d_id(this.p, this.d);
     this.strip_led_id = get_strip_led_id(this.strip_led);
     this.c = color(255,255,255);  // Start white
   }
@@ -398,7 +425,7 @@ class Petal {
     int[] coords = new int[2];
     coords[0] = strip_led.c1;
     coords[1] = strip_led.c2;;
-    return join(nf(coords, 0), ",");
+    return join(nf(coords, 0), "-");
   }
   
   Coord_int get_strip_led() {
@@ -413,13 +440,16 @@ class Petal {
     // toggle text label between light number and x,y coordinate
     String text = "";
     switch (DRAW_LABELS) {
-      case 0:
-        text = this.strip_led_id;
+      case 0:  
         break;
       case 1:
         text = this.p_d_id;
         break;
       case 2:
+        text = str(this.petal);
+        break;
+      case 3:
+        text = this.strip_led_id;
         break;
     }
     rectMode( RADIUS);
@@ -504,32 +534,11 @@ class Petal {
     return coord;
   }
   
-  Coord_int calc_led(byte sunflower, int p, int d) {
-    // convert (s, p, d) coordinates into (strip, LED)
-    int led = 0;
-    int s = sunflower * 2;
-    p = 20 - p; // flip orientation
-    d = 12 - d;
-    if ((p < 10) || (p == 10 && d > 6))  {
-      led = (p / 2) * 27;
-      
-      if (p % 2 == 0) {
-        led += (12 - d);
-      } else {
-        led += (13 + d);
-      }
-    } else {
-      s += 1;
-      p = 20 - p;
-      led = (p / 2) * 27;
-      
-      if (p % 2 == 0) {
-        led += d;
-      } else {
-        led += (26 - d);
-      }
-    }
-    Coord_int coord = new Coord_int(s, led);
+  Coord_int calc_led(byte sunflower, int i) {
+    // convert (s, i) coordinates into (strip, pixel) with lookup tables
+    int s = (sunflower * 2) + led_lookup_strip[i];
+    int pixel = led_lookup_pixel[i];
+    Coord_int coord = new Coord_int(s, pixel);
     return coord;
   }
   
@@ -538,7 +547,8 @@ class Petal {
   }
   
   int get_spiral_order(int p) {
-    return ((20 - p) * 13) % 21;
+//    return ((20 - p) * 13) % 21;
+    return SPIRAL_ORDER[(24 - p) % 21];
   }
 }
 
@@ -603,7 +613,7 @@ void processCommand(String cmd) {
   if (cmd.charAt(0) == 'X') {  // Finish the cycle
     finishCycle();
   } else if (cmd.charAt(0) == 'D') {  // Get the delay time
-    delay_time = Integer.valueOf(cmd.substring(1, cmd.length())) + 2;  // 10 is a buffer
+    delay_time = Integer.valueOf(cmd.substring(1, cmd.length()));
   } else {  
     processPixelCommand(cmd);  // Pixel command
   }
@@ -623,7 +633,7 @@ void processPixelCommand(String cmd) {
   int b     = Integer.valueOf(m.group(5));
   
   sendColorOut(s, i, (short)r, (short)g, (short)b, false);  
-//  println(String.format("setting pixel:%d,%d to r:%d, g:%d, b:%d", s, i, r, g, b));s
+//  println(String.format("setting pixel:%d,%d to r:%d, g:%d, b:%d", s, i, r, g, b));
 }
 
 //
@@ -632,18 +642,15 @@ void processPixelCommand(String cmd) {
 // Get ready for the next morph cycle by morphing to the max and pushing the frame buffer
 //
 void finishCycle() {
-  morph_frame(1.0);
+//  morph_frame(1.0);  // Causes jerky animations (removed)
   pushColorBuffer();
-  start_time = millis();  // reset the clock
+  start_time = last_time;  // = millis(); // reset the clock
 }
 
 //
 // Update Morph
 //
 void update_morph() {
-  if ((last_time - start_time) > delay_time) {
-    return;  // Already finished all morphing - waiting for next command 
-  }
   last_time = millis();  // update clock
   // Fractional morph over the span of delay_time
   morph_frame((last_time - start_time) / (float)delay_time); 
@@ -676,17 +683,16 @@ void sendColorOut(byte s, int i, short r, short g, short b, boolean morph) {
 void sendDataToLights() {
   if (testObserver.hasStrips) {   
     registry.startPushing();
-    registry.setExtraDelay(5);
+    registry.setExtraDelay(10);
     registry.setAutoThrottle(true);
     registry.setAntiLog(true);    
     
-    int strip_num = 0;
-    int pixel;
-    int brightness;
+    int strip_num, pixel, brightness;     
     Coord_int strip_led;
     
     List<Strip> strip_list = registry.getStrips();
-
+    
+    strip_num = 0;
     for (Strip strip : strip_list) {
       if (strip_num < strip_array.length) {
         strip_array[strip_num] = strip;
@@ -701,9 +707,9 @@ void sendDataToLights() {
         strip_num = strip_led.c1;
         pixel = strip_led.c2;
         
-        if (strip_num < strip_array.length || strip_array[strip_num] != null) {
+        if (strip_num < strip_array.length && strip_array[strip_num] != null) {
           strip_array[strip_num].setPixel(adj_brightness(getPixelBuffer(s,i), brightness), pixel);
-        } 
+        }
       }
     }
   }
@@ -859,6 +865,32 @@ void initializeColorBuffers() {
 //
 //  fract is an 0.0 - 1.0 fraction towards the next frame
 //
+void morph_frame(float fract) {
+  color c1, c2, interp;
+  short r,g,b;
+  
+  for (byte s = 0; s < NUM_SUNFLOWERS; s++) {
+    for (int i = 0; i < NUM_LEDS; i++) {
+      c1 = color(curr_buffer[s][i][0], curr_buffer[s][i][1], curr_buffer[s][i][2]);
+      c2 = color(next_buffer[s][i][0], next_buffer[s][i][1], next_buffer[s][i][2]);      
+      
+      interp = lerpColor(c1, c2, fract);
+      
+      r = (short)(interp >> 16 & 0xFF);
+      g = (short)(interp >> 8 & 0xFF);
+      b = (short)(interp & 0xFF);
+      
+      sendColorOut(s,i, r,g,b, true);
+    }
+  }
+}
+
+/*  COMPLEX RGB-HSV MORPHING CODE (deprecated)
+//
+//  Fractional morphing between current and next frame - sends data to lights
+//
+//  fract is an 0.0 - 1.0 fraction towards the next frame
+//
 //  Check several simple base cases before doing full rgb <-> hsb interpolation
 //
 void morph_frame(float fract) {
@@ -881,7 +913,7 @@ void morph_frame(float fract) {
       r2 = next_buffer[s][i][0];
       g2 = next_buffer[s][i][1];
       b2 = next_buffer[s][i][2];
-      
+                
       if (fract <= 0) {
         r = r1; g = g1; b = b1;  // Fract = 0; Send back 1st color
       } else if (fract >= 1) {
@@ -911,6 +943,7 @@ void morph_frame(float fract) {
     }
   }
 }
+*/
 
 /*  SIMPLIFIED RGB-only MORPHING CODE (deprecated)
 //
@@ -933,7 +966,7 @@ void morph_frame(float fract) {
     }
   }
 }
-*/
+
 
 short interp(short a, short b, float fract) {
   return (short)(a + (fract * (b-a)));
@@ -960,6 +993,8 @@ float interpolate_wrap(float a, float b, float fract)
     return a - interp_float(0, distCCW, fract);
   }
 }
+
+*/
 
 void setPixelBuffer(byte s, int i, short r, short g, short b, boolean morph) {
   if (morph) {

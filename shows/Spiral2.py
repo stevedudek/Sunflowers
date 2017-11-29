@@ -6,7 +6,7 @@ class Spiral2(object):
 	def __init__(self, sunflower_model):
 		self.name = "Spiral2"        
 		self.sunflower = sunflower_model
-		self.speed = 5
+		self.speed = 2
 		self.spacing = randint(2,5)
 		self.color1 = randColor()
 		self.color2 = changeColor(self.color1, 1000)

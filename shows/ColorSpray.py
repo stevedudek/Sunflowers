@@ -4,7 +4,7 @@ class ColorSpray(object):
 	def __init__(self, sunflower_model):
 		self.name = "ColorSpray"        
 		self.sunflower = sunflower_model
-		self.speed = 0.5 + (randint(0,30) * 0.1)
+		self.speed = randint(1,10) * 0.1
 		self.size = 5
 		self.color = randColor()
 		self.color_inc = randint(5,10)
@@ -35,11 +35,12 @@ class ColorSpray(object):
 			self.draw_rings()
 
 			# Change it up!
-			self.color_inc = inc(self.color_inc,1,5,10)
+			if oneIn(10):
+				self.color_inc = inc(self.color_inc,1,5,10)
 			if oneIn(40):
 				self.color_grade = inc(self.color_grade,1,2,5)
 
-			self.color = changeColor(self.color, 10)
+			self.color = changeColor(self.color, 1)
 			self.clock += 1
 
 			yield self.speed  	# random time set in init function

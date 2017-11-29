@@ -71,7 +71,7 @@ class Circling(object):
 			
 		while (True):
 
-			if len(self.planets) < 6 and oneIn(20):
+			if len(self.planets) < 1 or (len(self.planets) < 6 and oneIn(20)):
 				new_planet = Planet(self.sunflower, self.sunflower.rand_sun(), self.sunflower.get_rand_cell(),
 									self.color)
 				self.planets.append(new_planet)

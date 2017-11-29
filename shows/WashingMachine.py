@@ -6,7 +6,7 @@ class WashingMachine(object):
 		self.sunflower = sunflower_model
 		self.arcs = []
 		self.faders = Faders(self.sunflower)
-		self.speed = 0.1
+		self.speed = 0.05
 		self.color = randColor()
 		          
 	def next_frame(self):
