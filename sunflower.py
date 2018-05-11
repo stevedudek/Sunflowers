@@ -169,6 +169,7 @@ class Sunflower(object):
         """Set num_spirals to a family"""
         if family in ALLOWED_FAMILIES:
             self.num_spirals = family
+            self.max_dist = self.get_max_dist()
 
     def set_random_family(self):
         """Set num_spirals to a random spiral family"""

@@ -76,7 +76,7 @@ byte[] big_x = { 1,2,3,2 };
 byte[] big_y = { 1,1,1,2 };
 int DRAW_LABELS = 0;  // enumerated type: 0=(p,d) label, 1=(strip,pixel), 2=labels off
 boolean TOP_UP = true;  // Whether to draw sunflower as concave or convex
-int BRIGHTNESS = 80;  // A percentage
+int BRIGHTNESS = 100;  // A percentage
 int COLOR_STATE = 0;  // no enum types in processing. Messy
 
 // Color buffers: [s][i][r,g,b]
