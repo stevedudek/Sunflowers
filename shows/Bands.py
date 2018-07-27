@@ -16,8 +16,8 @@ class Band(object):
 		self.time = 0
 	
 	def draw(self):
-		for i in range(self.sunflower.num_spirals):
-			p = (self.sunflower.num_spirals + self.p + (i * self.dir * -1)) % self.sunflower.num_spirals
+		for i in range(self.sunflower.get_num_spirals()):
+			p = (self.sunflower.get_num_spirals() + self.p + (i * self.dir * -1)) % self.sunflower.get_num_spirals()
 			color = changeColor(self.color, i * self.grade)
 			intensity = 1.0 - (i * 1.0 / self.fade)
 			if intensity < 0:
@@ -29,7 +29,7 @@ class Band(object):
 		self.time += 1
 		if self.time >= self.speed:
 			self.time = 0
-			self.p = (self.sunflower.num_spirals + self.p + self.dir) % self.sunflower.num_spirals
+			self.p = (self.sunflower.get_num_spirals() + self.p + self.dir) % self.sunflower.get_num_spirals()
 			self.color = changeColor(self.color,10)
 			
 			if oneIn(50):
@@ -49,12 +49,11 @@ class Bands(object):
 		self.color = randColor()
 	
 	def next_frame(self):
-		if len(self.bands) < 5:
-			for s in range(NUM_SUNFLOWERS):
-				for d in range(self.sunflower.max_dist):
-					dir = ((d%2)*2)-1 	# -1 or 1
-					new_band = Band(self.sunflower, s, d, dir, self.color)
-					self.bands.append(new_band)
+		for s in range(NUM_SUNFLOWERS):
+			for d in range(self.sunflower.max_dist):
+				dir = ((d%2)*2)-1 	# -1 or 1
+				new_band = Band(self.sunflower, s, d, dir, self.color)
+				self.bands.append(new_band)
 
 		while (True):
 			for b in self.bands:

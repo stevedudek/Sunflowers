@@ -9,7 +9,7 @@ class Radar(object):
         self.speed = 0.1
         self.color = randColor()
         self.color_gradient = randint(20, 50)
-        self.trail = 1.5 / self.sunflower.num_spirals
+        self.trail = 1.0 / 24.0
         self.symm = 1
         self.clock = 0
 		          
@@ -32,13 +32,13 @@ class Radar(object):
             ray = self.clock
             if ray % 2 == 0: #even ray
                 for s in range((self.sunflower.max_dist/2) + 1):
-                    x = (ray/2 + s) % self.sunflower.num_spirals
+                    x = (ray/2 + s) % self.sunflower.get_num_spirals()
                     y = 2*s % self.sunflower.max_dist
                     for sun in range(NUM_SUNFLOWERS):
                         self.faders.add_fader(changeColor(self.color, y * self.color_gradient), (sun, x, y), self.trail)
             else: #odd ray
                 for s in range((self.sunflower.max_dist/2) + 1):
-                    x = (ray/2 + s + 1) % self.sunflower.num_spirals
+                    x = (ray/2 + s + 1) % self.sunflower.get_num_spirals()
                     y = 2*s+ 1 % self.sunflower.max_dist
                     for sun in range(NUM_SUNFLOWERS):
                         self.faders.add_fader(changeColor(self.color, y * self.color_gradient), (sun, x, y), self.trail)

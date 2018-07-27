@@ -5,7 +5,7 @@ class Twist(object):
 	def __init__(self, sunflower_model):
 		self.name = "Twist"        
 		self.sunflower = sunflower_model
-		self.speed = 0.06
+		self.speed = 0.1
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.ring = randint(0,5)
@@ -17,34 +17,36 @@ class Twist(object):
 	def draw_ring(self):
 		for s in range(NUM_SUNFLOWERS):
 			for y in range(self.sunflower.max_dist -1, self.ring, -1):
-				for x in range(self.sunflower.num_spirals):
+				for x in range(self.sunflower.get_num_spirals()):
 					color = changeColor(self.color, (x % self.color_grade) * self.color_inc)
-					intense = 1.0 - (0.2 * (((self.sunflower.max_dist - y - 1) + ((self.clock + x) % self.color_speed)) % 10))
+					intense = 1.0 - (0.1 * ((self.sunflower.max_dist - y - 1) + ((self.clock + x) % self.color_speed)))
 					self.sunflower.set_cell((s,x,y), gradient_wheel(color, intense))
 
 	def draw_sun(self):
 		for s in range(NUM_SUNFLOWERS):
 			for y in range(self.ring):
-				for x in range(self.sunflower.num_spirals):
+				for x in range(self.sunflower.get_num_spirals()):
 					color = changeColor(self.color, (x % self.color_grade) * self.color_inc)
-					intense = 1.0 - (0.2 * ((y + s + ((self.clock + x) % self.color_speed)) % (self.color_inc / 2)))
-					self.sunflower.set_cell((s, (x+(3*s)) % self.sunflower.num_spirals, y), gradient_wheel(color, intense))
+					intense = (1.0 - (0.2 * (y + s + ((self.clock + x) % self.color_speed)))) * 0.2
+					self.sunflower.set_cell((s, (x+(2*s)) % self.sunflower.get_num_spirals(), y), gradient_wheel(color, intense))
 
 
 	def next_frame(self):
 		
 		while (True):
 			
-			self.draw_ring()
 			self.draw_sun()
+			self.draw_ring()
 
 			# Change it up!
 			if oneIn(40):
-				self.ring = upORdown(self.ring, 1, 1, 5)
+				self.ring = (self.ring + 1) % self.sunflower.max_dist
+			if oneIn(40):
+				self.color_speed = (self.ring % self.sunflower.get_num_spirals()) + 2
 			if oneIn(4):
-				self.color_inc = upORdown(self.color_inc, 2, 20, 50)
+				self.color_inc = (self.color_inc % 50) + 1
 			if oneIn(100):
-				self.color_grade = upORdown(self.color_grade, 1, 2, 8)
+				self.color_grade = (self.color_grade % 7) + 2
 
 
 			# Add a decrease color function

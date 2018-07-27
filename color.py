@@ -99,11 +99,11 @@ def rgb_morph(rgb1,rgb2):
 def hsv_morph(hsv1,hsv2):
     "interpolate between two hsv's"
     return HSV(interpolate(hsv1.h,hsv2.h),
-                interpolate(hsv1.s,hsv2.s),
-                interpolate(hsv1.v,hsv2.v) )
+               interpolate(hsv1.s,hsv2.s),
+               interpolate(hsv1.v,hsv2.v))
 
-def interpolate(val1,val2):
-    return val1 + ((val2-val1)/2.0)
+def interpolate(val1, val2):
+    return val1 + ((val2 - val1) / 2.0)
 
 def RGB(r,g,b):
     "Create a new RGB color"
@@ -125,6 +125,7 @@ def Hex(value):
 class Color(object):
     def __init__(self, hsv_tuple):
         self._set_hsv(hsv_tuple)
+        print "Creating color"
 
     def copy(self):
         return deepcopy(self)
@@ -220,6 +221,7 @@ class Color(object):
         new = (r, g, val)
         assert is_rgb_tuple(new)
         self._set_hsv(rgb_to_hsv(new))
+
 
 if __name__=='__main__':
     import doctest

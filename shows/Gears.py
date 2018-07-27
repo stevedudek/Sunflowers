@@ -5,27 +5,25 @@ class Gears(object):
 	def __init__(self, sunflower_model):
 		self.name = "Gears"        
 		self.sunflower = sunflower_model
-		self.speed = 0.05
+		self.speed = 0.2
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.density = randint(2,20)
 		self.color_grade = randint(10,20)
-		self.syms = [0,0]
+		self.syms = [0,0,0,0,0,0]
 		self.clock = 0
 		self.bright = randint(0,2)
 	
 	def draw_rings(self):
 		for s in range(NUM_SUNFLOWERS):
 			for y in range(self.sunflower.max_dist):
-				offset = self.clock % self.sunflower.num_spirals
+				offset = self.clock % self.sunflower.get_num_spirals()
 				if y % 2:
-					offset = self.sunflower.num_spirals - offset
+					offset = self.sunflower.get_num_spirals() - offset
 
 				for x in self.sunflower.get_petal_sym(self.syms[y % len(self.syms)], offset):
 					color = changeColor(self.color, ((y + self.clock) % self.color_grade) * self.color_inc)
-					intensity = 1.0 - (0.1 * (((y + s + self.clock) % ((self.sunflower.max_dist * 2) - 1)) % 10))
-					if s % 2:
-						intensity = 1 - intensity
+					intensity = 1.0 - (0.05 * ((y + s + self.clock) % ((self.sunflower.max_dist * 2) - 1)))
 					self.sunflower.set_cell((s,x,y), gradient_wheel(color, intensity))
 
 				if oneIn(10):
