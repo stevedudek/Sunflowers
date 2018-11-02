@@ -76,7 +76,7 @@ class Firefly(object):
 				self.draw_faders()
 
 			if not self.rotate_life and oneIn(25):
-				self.rotate_max = randint(6, max(self.sunflower.num_spirals, 7))
+				self.rotate_max = randint(6, max(self.sunflower.get_num_spirals(), 7))
 				self.rotate_life = self.rotate_max
 
 			if oneIn(50):

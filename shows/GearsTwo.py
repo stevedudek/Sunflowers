@@ -5,10 +5,10 @@ class GearsTwo(object):
 	def __init__(self, sunflower_model):
 		self.name = "GearsTwo"        
 		self.sunflower = sunflower_model
-		self.speed = 0.05
+		self.speed = 0.5
 		self.color = randColor()
 		self.color_inc = randint(20,50)
-		self.syms = [0,0,0]
+		self.syms = [0,0,0,0,0,0]
 		self.clock = 0
 	
 	def draw_rings(self):
@@ -17,16 +17,16 @@ class GearsTwo(object):
 				offset = 0
 				for x in self.sunflower.get_petal_sym(self.syms[y % len(self.syms)] + s, offset):
 					color = changeColor(self.color, (((x % 3) * 2) + (y * 1.0) + self.clock + (s * 2)) * self.color_inc)
-					intensity = 1.0 - (0.05 * ((x + y + (s * 5) + self.clock) % 20))
+					intensity = 1.0 - (0.075 * ((x + y + self.clock) % 8))
 					self.sunflower.set_cell((s,x,y), gradient_wheel(color, intensity))
 
-				if oneIn(100):
-					self.syms[y % len(self.syms)] = upORdown(self.syms[y % len(self.syms)], 1, 2, 6)
+				if oneIn(10):
+					self.syms[y % len(self.syms)] = (self.syms[y % len(self.syms)] + 1) % 7
 
 	def next_frame(self):
 		"""Set up distances with random symmetries"""
 		for i in range(len(self.syms)):
-			self.syms[i % len(self.syms)] = randint(2,6)
+			self.syms[i % len(self.syms)] = randint(0,7)
 
 		while (True):
 			

@@ -9,6 +9,8 @@ class Branch(object):
 		self.pos = pos
 		self.dir = dir
 		self.life = life	# How long the branch has been around
+		self.max_brightness = 0.3
+		self.sunflower.set_max_brightness(self.max_brightness)
 
 	def draw_branch(self, inversion):
 		if inversion:
@@ -55,7 +57,7 @@ class CenterBranches(object):
 					randDir(),  # Random initial direction
 					0)				# Life = 0 (new branch)
 				self.livebranches.append(newbranch)
-				self.maincolor = (self.maincolor + 20) % MAX_COLOR
+				self.maincolor = (self.maincolor + 40) % MAX_COLOR
 				
 			for b in self.livebranches:
 				b.draw_branch(self.inversion)

@@ -5,7 +5,7 @@ class Rain(object):
 	def __init__(self, sunflower_model):
 		self.name = "Rain"        
 		self.sunflower = sunflower_model
-		self.speed = randint(1,4) * 0.05
+		self.speed = 0.2 + (randint(0,8) * 0.05)
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_speed = randint(1,4)
@@ -23,7 +23,7 @@ class Rain(object):
 	def move_arcs(self):
 		for a in self.arcs:
 			if not a.move():
-				new_petal = upORdown(a.get_petal(), 1, 0, self.sunflower.num_spirals - 1)
+				new_petal = upORdown(a.get_petal(), 1, 0, self.sunflower.get_num_spirals() - 1)
 				new_fan = Fan(self.sunflower, changeColor(a.get_color(),10), a.s, new_petal)
 				self.fans.append(new_fan)
 				self.arcs.remove(a)
@@ -50,8 +50,8 @@ class Rain(object):
 
 		while (True):
 			
-			if len(self.fans) < 4:
-				new_fan = Fan(self.sunflower, randColorRange(self.color, 100), self.sunflower.rand_sun(), randint(0, self.sunflower.num_spirals))
+			if len(self.fans) < 3:
+				new_fan = Fan(self.sunflower, randColorRange(self.color, 100), self.sunflower.rand_sun(), randint(0, self.sunflower.get_num_spirals()))
 				self.fans.append(new_fan)
 				self.dir = 1
 

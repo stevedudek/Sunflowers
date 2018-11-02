@@ -4,7 +4,7 @@ class Paint(object):
 	def __init__(self, sunflower_model):
 		self.name = "Paint"        
 		self.sunflower = sunflower_model
-		self.speed = 0.05
+		self.speed = 0.2
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_speed = randint(1,4)
@@ -22,7 +22,7 @@ class Paint(object):
 	def move_arcs(self):
 		for a in self.arcs:
 			if not a.move():
-				new_petal = upORdown(a.get_petal(), 1, 0, self.sunflower.num_spirals - 1)
+				new_petal = upORdown(a.get_petal(), 1, 0, self.sunflower.get_num_spirals() - 1)
 				new_fan = Fan(self.sunflower, changeColor(a.get_color(),300), a.s, new_petal)
 				self.fans.append(new_fan)
 				self.arcs.remove(a)
@@ -50,7 +50,7 @@ class Paint(object):
 		while (True):
 			
 			if len(self.fans) < 4:
-				new_fan = Fan(self.sunflower, self.color, self.sunflower.rand_sun(), randint(0, self.sunflower.num_spirals))
+				new_fan = Fan(self.sunflower, self.color, self.sunflower.rand_sun(), randint(0, self.sunflower.get_num_spirals()))
 				self.fans.append(new_fan)
 				self.dir = 1
 

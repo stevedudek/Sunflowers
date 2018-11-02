@@ -10,12 +10,13 @@ class Blossom(object):
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_speed = randint(1,4)
-		self.color_grade = randint(50,100)
-		self.pulse = randint(10,20)
+		self.color_grade = randint(50,200)
+		self.pulse = randint(4,20)
 		self.color_decay = 2
 		self.grow = True
 		self.clock = 0
 		self.bright = False
+		self.BRIGHTNESS_MAX = 1
 		          
 	def next_frame(self):
 		
@@ -23,16 +24,14 @@ class Blossom(object):
 
 			for s in range(NUM_SUNFLOWERS):
 				for y in range(self.sunflower.max_dist):
-					for x in range(self.sunflower.num_spirals):
-						color = changeColor(self.color, ((x + (s * 4)) % self.color_grade) * self.color_inc)
-						intense = (sin(1.0 - (sin(self.clock / float(self.pulse))) + (y * self.color_decay / 40.0)) * 2) - 1.0
-						if s % 2:
-							intense = 1.0 - intense
+					for x in range(self.sunflower.get_num_spirals()):
+						color = changeColor(self.color, ((x + s) % self.color_grade) * self.color_inc)
+						intense = (sin(1.0 - (sin(self.clock / float(self.pulse))) + ((y + s) * self.color_decay / 40.0)) * 2) - 1.0
 
 						if self.bright:
-							self.sunflower.set_cell((s,x,y), white_wheel(color, (1 - intense)))
+							self.sunflower.set_cell((s,x,y), white_wheel(color, (1 - intense) / self.BRIGHTNESS_MAX))
 						else:
-							self.sunflower.set_cell((s,x,y), gradient_wheel(color, intense))
+							self.sunflower.set_cell((s,x,y), gradient_wheel(color, self.BRIGHTNESS_MAX * intense))
 
 			# Change it up!
 			if oneIn(40):

@@ -23,7 +23,7 @@ class Fanning(object):
 	def __init__(self, sunflower_model):
 		self.name = "Fanning"        
 		self.sunflower = sunflower_model
-		self.speed = randint(1,5) * 0.1
+		self.speed = 0.2 + (randint(0,3) * 0.1)
 		self.color = randColor()
 		self.color_inc = randint(20,50)
 		self.color_speed = randint(1,4)
@@ -53,7 +53,7 @@ class Fanning(object):
 
 			if len(self.fans) < self.max_fans:
 				new_fan = Fan(self.sunflower, randColorRange(self.color, 400),
-							  self.sunflower.rand_sun(), randint(0, self.sunflower.num_spirals), 0.3)
+                              self.sunflower.rand_sun(), randint(0, self.sunflower.get_num_spirals()), 0.3)
 				self.fans.append(new_fan)
 
 			self.color = changeColor(self.color, -2)

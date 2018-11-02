@@ -116,9 +116,9 @@ class Centipede (object):
             # If y goes negative, let it loop to other side
             if y < 0:
                 y = 1 - y
-                x = (x + self.sunflower.num_spirals / 2) % self.sunflower.num_spirals
+                x = (x + self.sunflower.get_num_spirals() / 2) % self.sunflower.get_num_spirals()
 
-            x = (x + self.sunflower.num_spirals) % self.sunflower.num_spirals
+            x = (x + self.sunflower.get_num_spirals()) % self.sunflower.get_num_spirals()
             y = (y + self.sunflower.max_dist) % self.sunflower.max_dist
 
             for s in range(self.sunflower.num_sunflowers):
