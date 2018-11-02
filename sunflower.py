@@ -2,13 +2,12 @@
 Model to communicate with a Sunflower simulator over a TCP socket
 
 Coordinates: (s,i) = (sunflower, pixel)  = (0-3, 0-72)
-
 """
 
 from random import choice, randint
-from math import floor, ceil
+from math import ceil
 
-NUM_SUNFLOWERS = 2
+NUM_SUNFLOWERS = 3
 NUM_LEDS = 273
 
 ALLOWED_FAMILIES = [8, 13, 21, 34, 55]
@@ -27,15 +26,17 @@ class Sunflower(object):
     """
     Frames implemented to shorten messages:
     Send only the pixels that change color
-    Frames are hash tables where keys are (r,p,d) coordinates
+    Frames are hash tables where keys are (s,i) coordinates
     and values are (r,g,b) colors
+    s,p,d = sunflower, petal, distance (converted to s,i)
+    s,i = sunflower, pixel (cellmap keys)
     """
     def __init__(self, model, family=DEFAULT_FAMILY):
         self.model = model
         self.num_spirals = family
         self.num_sunflowers = NUM_SUNFLOWERS
-        self.max_dist = self.get_max_dist()
-        self.cellmap = self.get_all_pixels()
+        self.max_dist = int(ceil(float(NUM_LEDS) / self.num_spirals))
+        self.cellmap = self.add_all_pixels()
         self.curr_frame = {}
         self.next_frame = {}
         self.init_frames()
@@ -45,7 +46,7 @@ class Sunflower(object):
         return "Sunflowers(%s)" % (self.model, self.side)
 
     def all_cells(self):
-        "Return the list of valid coords"
+        """Return the list of valid coords"""
         return self.cellmap
 
     def cell_exists(self, coord):
@@ -53,23 +54,15 @@ class Sunflower(object):
         return coord in self.cellmap
 
     def set_cell(self, coord, color):
-        """Convert coord to pixel i and send out"""
+        """Convert (s,p,d) coord to (s,i) and send out"""
         s, p, d = coord
         i = self.get_pixel((p,d))
         coord = (s,i)
         if self.cell_exists(coord):
-            (r,g,b) = color
-            adj_color = (r * self.brightness, g * self.brightness, b * self.brightness)
-            self.next_frame[coord] = adj_color
-
-    def set_pixel(self, coord, color):
-        """coord is (s, i)"""
-        if self.cell_exists(coord):
-            (r, g, b) = color
-            adj_color = (r * self.brightness, g * self.brightness, b * self.brightness)
-            self.next_frame[coord] = adj_color
+            self.next_frame[coord] = color
 
     def set_cells(self, coords, color):
+        """Convert (s,p,d) coords to (s,i) and send out"""
         for coord in coords:
             self.set_cell(coord, color)
 
@@ -90,18 +83,21 @@ class Sunflower(object):
                 self.set_cell((s, p, d), color)
 
     def black_cell(self, coord):
-        self.set_cell(coord, (0,0,0))
+        self.set_cell(coord, (0, 0, 0))
 
     def black_cells(self):
         self.set_all_cells((0, 0, 0))
 
+    def black_all_cells(self):
+        self.set_all_cells((0, 0, 0))
+
     def clear(self):
         self.force_frame()
-        self.set_all_cells((0,0,0))
+        self.black_all_cells()
         self.go()
 
     def go(self, fract=1):
-        self.send_frame()
+        self.send_frame(fract)
         self.model.go(fract)
         self.update_frame()
 
@@ -112,9 +108,9 @@ class Sunflower(object):
         for coord in self.next_frame:
             self.curr_frame[coord] = self.next_frame[coord]
 
-    def send_frame(self):
-        for coord, color in self.next_frame.iteritems():
-            if self.curr_frame[coord] != color: # Has the color changed? Hashing to color values
+    def send_frame(self, fract=1):
+        for coord, color in self.next_frame.items():
+            if fract != 1 or (coord in self.curr_frame and self.curr_frame[coord] != color):  # Has the color changed?
                 self.model.set_cell(coord, color)
 
     def force_frame(self):
@@ -126,7 +122,7 @@ class Sunflower(object):
             self.curr_frame[coord] = (0,0,0)
             self.next_frame[coord] = (0,0,0)
 
-    def get_all_pixels(self):
+    def add_all_pixels(self):
         """Return all valid (s,i) coordinates"""
         all_coords = [(s,i) for i in range(NUM_LEDS) for s in range(NUM_SUNFLOWERS)]
         return all_coords
@@ -134,25 +130,27 @@ class Sunflower(object):
     def get_num_spirals(self):
         return self.num_spirals
 
-    def get_max_dist(self):
-        return int(ceil(NUM_LEDS / float(self.num_spirals)))
+    def max_dist(self):
+        return ceil(float(self.num_spirals) / NUM_LEDS)
 
     def is_on_board(self, coord):
         return self.get_pixel(coord) < NUM_LEDS
 
     def get_pixel(self, coord):
-        """Calculate the pixel i from the coordinates depending on the family"""
+        """Calculate the pixel i from the coordinates depending on the family
+           DON'T ALTER! SUCH WORK TO GET DONE CORRECTLY"""
         p, d = coord
         new_p = self.get_spiral_order(p)
-        pixel = new_p + (d * self.num_spirals)
-        return pixel
+        return new_p + (d * self.num_spirals)
 
-    def get_spiral_order(self, p):
-        """Convert the spiral p to a clockwise-ordered spiral"""
-        FAMILY_DICT = { 8:55, 13:13, 21:21, 34:21, 55:13 }
-        new_p = (15 + int(round(p * NUM_LEDS / float(FAMILY_DICT[self.num_spirals])))) % self.num_spirals
-        return new_p
+    def get_spiral_order(self, i):
+        """Convert the spiral i to a clockwise-ordered spiral
+           DON'T ALTER! SUCH WORK TO GET DONE CORRECTLY"""
+        denominator = PROCESSING_FAMILY if self.num_spirals != 13 else self.num_spirals
+        new_i = int(round(i * NUM_LEDS / float(denominator))) % self.num_spirals
+        return new_i
 
+    ## The 2 functions below do not work; saving them for reference
     # def get_pixel(self, coord):
     #     """Calculate the pixel i from the coordinates depending on the family"""
     #     p, d = coord
@@ -166,18 +164,16 @@ class Sunflower(object):
     #     return new_i
 
     def set_family(self, family):
-        """Set num_spirals to a family"""
         if family in ALLOWED_FAMILIES:
             self.num_spirals = family
-            self.max_dist = self.get_max_dist()
+            self.max_dist = int(ceil(float(NUM_LEDS) / self.num_spirals))
 
     def set_random_family(self):
         """Set num_spirals to a random spiral family"""
         self.num_spirals = self.get_random_family()
-        self.max_dist = self.get_max_dist()
+        self.max_dist = int(ceil(float(NUM_LEDS) / self.num_spirals))
 
     def get_random_family(self):
-        """Pick a random spiral family"""
         return choice(ALLOWED_FAMILIES)
 
     def set_max_brightness(self, brightness):
@@ -281,4 +277,4 @@ class Sunflower(object):
         return [(((p + offset) % self.num_spirals), d) for (p, d) in self.get_fan_band_fixed(size)]
 
     def get_fan_band_fixed(self, size):
-        return [(p, size-1) for p in range(size)]
+        return [(p, size) for p in range(size)]

@@ -11,11 +11,12 @@ MAX_DIR = 4
 # Common random functions
 #
 
+
 # Random chance. True if 1 in Number
 def oneIn(chance):
-	return True if randint(1,chance) == 1 else False
+	return randint(1, chance) == 1
 
-# Return either 1 or -1
+# Return  either 1 or -1
 def plusORminus():
 	return (randint(0,1) * 2) - 1
 
@@ -31,9 +32,9 @@ def inc(value, increase, min, max):
 
 def bounds(value, min, max):
 	if value < min:
-		value = max
-	if value > max:
 		value = min
+	if value > max:
+		value = max
 	return value
 
 # Convert s, (p, d) to (s, p, d)
